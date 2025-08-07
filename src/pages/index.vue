@@ -146,7 +146,7 @@ const calculateSplit = () => {
     receipt.value!.items.forEach((item: ReceiptItem, itemIndex: number) => {
       const assignments = itemAssignments.value[itemIndex] || []
       if (assignments.includes(pIndex)) {
-        const itemCost = item.price / assignments.length
+        const itemCost = (item.price * item.quantity) / assignments.length
         total += itemCost
         items.push({
           name: item.name,
