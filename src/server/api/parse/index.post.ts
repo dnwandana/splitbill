@@ -66,6 +66,7 @@ export default defineEventHandler(async (event) => {
     4. The total amount of the bill
     `
 
+    // send completion request
     const response = await fetch(
       'https://openrouter.ai/api/v1/chat/completions',
       {
@@ -75,7 +76,7 @@ export default defineEventHandler(async (event) => {
         },
         method: 'POST',
         body: JSON.stringify({
-          model: 'mistralai/mistral-small-3.1-24b-instruct:free',
+          model: process.env.COMPLETION_MODEL,
           messages: [
             { role: 'system', content: systemPrompt },
             {
@@ -136,6 +137,7 @@ export default defineEventHandler(async (event) => {
       }
     )
 
+    // parse the completion response
     const completion = await response.json()
     const receipt = JSON.parse(completion.choices[0].message.content)
 
