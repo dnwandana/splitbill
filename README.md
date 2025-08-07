@@ -1,75 +1,36 @@
-# Nuxt Minimal Starter
+# SplitBill
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+AI-powered bill splitter: Snap receipts, assign items with drag-&-drop, get instant fair splits.
 
-## Setup
+## Features
 
-Make sure to install dependencies:
+- **AI-Powered Receipt Scanning**: Upload a receipt image and let AI extract items, quantities, and prices automatically.
+- **Easy Participant Management**: Add multiple participants to a bill.
+- **Simple Item Assignment**: Assign each item to one or more people with a simple click.
+- **Instant & Accurate Calculations**: Get a real-time breakdown of who owes what.
+- **Responsive Design**: Fully functional on both desktop and mobile devices.
+
+## Getting Started
+
+### Set up environment variables
+
+Create a `.env` file in the root of the project and add the following environment variables. You'll need an API key from [OpenRouter](https://openrouter.ai/).
+
+```env
+OPENROUTER_API_KEY=your_openrouter_api_key
+COMPLETION_MODEL=openrouter/horizon-beta
+```
+
+### Install dependencies
 
 ```bash
-# npm
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
 ```
 
-## Development Server
+### Run the development server
 
-Start the development server on `http://localhost:3000`:
+Start the development server on `http://localhost:3000`.
 
 ```bash
-# npm
 npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
 ```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
