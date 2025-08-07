@@ -1,12 +1,12 @@
 <script lang="ts" setup>
 // SEO Meta
 useSeoMeta({
-  title: 'AI Split Bill App - Simplify Group Expenses & Payments Instantly',
+  title: 'SplitBill AI: Snap, Split, Done. Group Bills Made Easy.',
   description:
-    'Effortlessly split bills with AI technology. Track group expenses, manage shared costs, and settle payments instantly. Free up time for fun!',
-  ogTitle: 'AI Split Bill App - Simplify Group Expenses & Payments Instantly',
+    'Tired of awkward bill math? Just snap a photo of your receipt and let our AI handle the rest. Split expenses with your squad in seconds. Fast, free, and accurate.',
+  ogTitle: 'SplitBill AI: Snap, Split, Done. Group Bills Made Easy.',
   ogDescription:
-    'Effortlessly split bills with AI technology. Track group expenses, manage shared costs, and settle payments instantly. Free up time for fun!',
+    'Tired of awkward bill math? Just snap a photo of your receipt and let our AI handle the rest. Split expenses with your squad in seconds. Fast, free, and accurate.',
   twitterCard: 'summary_large_image'
 })
 
