@@ -574,7 +574,7 @@ const resetApp = () => {
           </UButton>
           <h1 class="text-4xl font-bold text-white mb-2">Who Gets What?</h1>
           <p class="text-gray-400">
-            Gather your squad and connect the dots between people and purchases
+            Assign items to your squad and we'll handle the math.
           </p>
         </div>
 
@@ -585,7 +585,8 @@ const resetApp = () => {
               <div class="flex justify-between items-center">
                 <h3 class="text-lg font-semibold">The Squad</h3>
                 <UButton size="sm" color="primary" @click="addParticipant">
-                  + Add Friend
+                  <Icon name="i-heroicons-plus" class="w-4 h-4 mr-1" />
+                  Add Friend
                 </UButton>
               </div>
             </template>
@@ -609,7 +610,7 @@ const resetApp = () => {
                   size="sm"
                   @click="removeParticipant(index)"
                 >
-                  ×
+                  <Icon name="i-heroicons-x-mark" class="w-4 h-4" />
                 </UButton>
               </div>
             </div>
