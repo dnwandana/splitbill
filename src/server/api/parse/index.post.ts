@@ -139,6 +139,7 @@ export default defineEventHandler(async (event) => {
 
     // parse the completion response
     const completion = await response.json()
+    console.log('completion response', JSON.stringify(completion, null, 2))
     const receipt = JSON.parse(completion.choices[0].message.content)
 
     return {
