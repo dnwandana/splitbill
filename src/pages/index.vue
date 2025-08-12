@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+import { detectUserCurrency, formatCurrencyAmount } from '../utils/currency'
 // SEO Meta
 useSeoMeta({
   title: 'SplitBill AI: Snap, Split, Done. Group Bills Made Easy.',
@@ -53,6 +54,71 @@ const itemAssignments = ref<Record<number, number[]>>({})
 const splitResults = ref<SplitResults | null>(null)
 const error = ref<string | null>(null)
 const selectedParticipantIndex = ref<number | null>(null)
+
+// Currency/Locale detection (client-side)
+const userLocale = ref('en-US')
+const userCurrency = ref('USD')
+const formatCurrency = (amount: number) =>
+  formatCurrencyAmount(amount, userLocale.value, userCurrency.value)
+
+interface CurrencyOption {
+  label: string
+  value: string
+}
+const currencyItems: CurrencyOption[] = [
+  { label: 'US Dollar (USD)', value: 'USD' },
+  { label: 'Euro (EUR)', value: 'EUR' },
+  { label: 'British Pound (GBP)', value: 'GBP' },
+  { label: 'Japanese Yen (JPY)', value: 'JPY' },
+  { label: 'Australian Dollar (AUD)', value: 'AUD' },
+  { label: 'Canadian Dollar (CAD)', value: 'CAD' },
+  { label: 'Singapore Dollar (SGD)', value: 'SGD' },
+  { label: 'Indonesian Rupiah (IDR)', value: 'IDR' },
+  { label: 'Malaysian Ringgit (MYR)', value: 'MYR' },
+  { label: 'Thai Baht (THB)', value: 'THB' },
+  { label: 'Philippine Peso (PHP)', value: 'PHP' },
+  { label: 'Indian Rupee (INR)', value: 'INR' },
+  { label: 'Chinese Yuan (CNY)', value: 'CNY' },
+  { label: 'Korean Won (KRW)', value: 'KRW' },
+  { label: 'Hong Kong Dollar (HKD)', value: 'HKD' },
+  { label: 'New Taiwan Dollar (TWD)', value: 'TWD' },
+  { label: 'New Zealand Dollar (NZD)', value: 'NZD' },
+  { label: 'Swiss Franc (CHF)', value: 'CHF' },
+  { label: 'Swedish Krona (SEK)', value: 'SEK' },
+  { label: 'Norwegian Krone (NOK)', value: 'NOK' },
+  { label: 'Danish Krone (DKK)', value: 'DKK' },
+  { label: 'Polish Zloty (PLN)', value: 'PLN' },
+  { label: 'Czech Koruna (CZK)', value: 'CZK' },
+  { label: 'Hungarian Forint (HUF)', value: 'HUF' },
+  { label: 'Turkish Lira (TRY)', value: 'TRY' },
+  { label: 'South African Rand (ZAR)', value: 'ZAR' },
+  { label: 'Brazilian Real (BRL)', value: 'BRL' },
+  { label: 'Mexican Peso (MXN)', value: 'MXN' },
+  { label: 'Israeli Shekel (ILS)', value: 'ILS' },
+  { label: 'UAE Dirham (AED)', value: 'AED' },
+  { label: 'Saudi Riyal (SAR)', value: 'SAR' },
+  { label: 'Vietnamese Dong (VND)', value: 'VND' }
+]
+
+const selectedCurrencyOption = ref<CurrencyOption | undefined>(undefined)
+
+onMounted(() => {
+  const { locale, currency } = detectUserCurrency()
+  userLocale.value = locale
+
+  // Initialize with detected currency or fallback to USD
+  const initialOption =
+    currencyItems.find((c) => c.value === currency) ||
+    currencyItems.find((c) => c.value === 'USD')
+  selectedCurrencyOption.value = initialOption
+  userCurrency.value = initialOption?.value || currency || 'USD'
+})
+
+watch(selectedCurrencyOption, (option) => {
+  if (option) {
+    userCurrency.value = option.value
+  }
+})
 
 // Participant colors for avatars
 const participantColors = [
@@ -353,14 +419,17 @@ const resetApp = () => {
             />
             <span class="text-2xl font-bold">SplitBill</span>
           </div>
-          <UButton
-            color="primary"
-            variant="solid"
-            class="cursor-pointer"
-            @click="goToStep('upload')"
-          >
-            Split Your Bill
-          </UButton>
+          <div>
+            <USelectMenu
+              v-model="selectedCurrencyOption"
+              :items="currencyItems"
+              option-attribute="label"
+              value-attribute="value"
+              placeholder="Choose your currency"
+              searchable
+              class="max-w-[100px] md:max-w-full"
+            />
+          </div>
         </div>
       </UContainer>
     </header>
@@ -877,7 +946,7 @@ const resetApp = () => {
                     participant.trim()
                   }}</span>
                   <span class="text-xs font-semibold text-blue-400">
-                    ${{ (participantTotals[index]?.total || 0).toFixed(2) }}
+                    {{ formatCurrency(participantTotals[index]?.total || 0) }}
                   </span>
                 </div>
               </div>
@@ -927,12 +996,11 @@ const resetApp = () => {
                   <div class="flex-1">
                     <h4 class="font-medium">{{ item.name }}</h4>
                     <p class="text-sm text-gray-400">
-                      Qty: {{ item.quantity }} &times; ${{
-                        item.price.toFixed(2)
-                      }}
+                      Qty: {{ item.quantity }} &times;
+                      {{ formatCurrency(item.price) }}
                     </p>
                     <div class="font-semibold text-lg mt-1">
-                      ${{ (item.quantity * item.price).toFixed(2) }}
+                      {{ formatCurrency(item.quantity * item.price) }}
                     </div>
                   </div>
 
@@ -995,9 +1063,9 @@ const resetApp = () => {
           <div class="mb-6">
             <p class="text-lg text-gray-300">
               Total:
-              <span class="font-bold text-2xl text-white"
-                >${{ receipt?.total?.toFixed(2) }}</span
-              >
+              <span class="font-bold text-2xl text-white">{{
+                formatCurrency(receipt?.total || 0)
+              }}</span>
             </p>
           </div>
 
@@ -1042,13 +1110,13 @@ const resetApp = () => {
               <div>
                 <p class="text-sm text-gray-400">Original Total</p>
                 <p class="text-2xl font-bold">
-                  ${{ splitResults?.originalTotal?.toFixed(2) }}
+                  {{ formatCurrency(splitResults?.originalTotal || 0) }}
                 </p>
               </div>
               <div>
                 <p class="text-sm text-gray-400">Split Total</p>
                 <p class="text-2xl font-bold">
-                  ${{ splitResults?.splitTotal?.toFixed(2) }}
+                  {{ formatCurrency(splitResults?.splitTotal || 0) }}
                 </p>
               </div>
               <div>
@@ -1064,11 +1132,13 @@ const resetApp = () => {
                       : 'text-red-400'
                   "
                 >
-                  ${{
-                    Math.abs(
-                      (splitResults?.originalTotal || 0) -
-                        (splitResults?.splitTotal || 0)
-                    ).toFixed(2)
+                  {{
+                    formatCurrency(
+                      Math.abs(
+                        (splitResults?.originalTotal || 0) -
+                          (splitResults?.splitTotal || 0)
+                      )
+                    )
                   }}
                 </p>
               </div>
@@ -1087,7 +1157,7 @@ const resetApp = () => {
               <div class="flex justify-between items-center">
                 <h3 class="text-lg font-semibold">{{ participant.name }}</h3>
                 <span class="text-2xl font-bold text-blue-400">
-                  ${{ participant.total.toFixed(2) }}
+                  {{ formatCurrency(participant.total) }}
                 </span>
               </div>
             </template>
@@ -1106,9 +1176,9 @@ const resetApp = () => {
                     }})
                   </span>
                 </span>
-                <span class="text-sm font-medium"
-                  >${{ item.cost.toFixed(2) }}</span
-                >
+                <span class="text-sm font-medium">{{
+                  formatCurrency(item.cost)
+                }}</span>
               </div>
             </div>
           </UCard>
