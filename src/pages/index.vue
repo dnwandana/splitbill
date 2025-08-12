@@ -596,6 +596,7 @@ const resetApp = () => {
                 color="error"
                 variant="outline"
                 size="sm"
+                class="cursor-pointer"
                 @click.stop="clearFile"
               >
                 Remove File
@@ -672,7 +673,7 @@ const resetApp = () => {
                 name="i-heroicons-document-text"
                 class="w-5 h-5"
                 :class="{
-                  'text-blue-400 animate-spin':
+                  'text-blue-400':
                     parseProgress === 'uploading' ||
                     parseProgress === 'parsing',
                   'text-green-400': parseProgress === 'complete',
@@ -698,6 +699,11 @@ const resetApp = () => {
                     : 'Ready to parse'
                 }}
               </span>
+              <Icon
+                v-if="parseProgress === 'parsing'"
+                name="i-heroicons-arrow-path"
+                class="w-5 h-5 text-blue-400 animate-spin"
+              />
               <Icon
                 v-if="parseProgress === 'complete'"
                 name="i-heroicons-check-circle"
@@ -778,7 +784,7 @@ const resetApp = () => {
                 color="neutral"
                 variant="ghost"
                 icon="i-heroicons-x-mark-20-solid"
-                class="cursor-pointer"
+                class="cursor-pointer hover:text-red-400"
                 @click="removeParticipant(index)"
               />
             </div>
@@ -825,7 +831,7 @@ const resetApp = () => {
         <div class="text-center mb-8">
           <UButton
             variant="link"
-            class="mb-4 text-green-400 hover:text-green-300"
+            class="mb-4 text-green-400 hover:text-green-300 cursor-pointer"
             @click="goToStep('participants')"
           >
             ← Back to Participants
