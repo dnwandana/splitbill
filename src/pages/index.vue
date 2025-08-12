@@ -369,9 +369,7 @@ const resetApp = () => {
     <main>
       <UContainer class="py-20 sm:py-32 text-center">
         <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight mb-6">
-          The <span class="text-blue-400">Easiest Way</span> to
-          <br />
-          Split a Bill
+          The <span class="text-blue-400">Easiest Way</span> to Split a Bill
         </h1>
         <p class="text-lg sm:text-xl text-gray-400 max-w-2xl mx-auto mb-10">
           From receipt chaos to perfect splits in one snap. Our AI does the
