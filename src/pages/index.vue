@@ -1,5 +1,10 @@
 <script lang="ts" setup>
 import { detectUserCurrency, formatCurrencyAmount } from '../utils/currency'
+import { useAnalytics } from '../composables/useAnalytics'
+
+// Analytics
+const analytics = useAnalytics()
+
 // SEO Meta
 useSeoMeta({
   title: 'SplitBill AI: Snap, Split, Done. Group Bills Made Easy.',
@@ -112,11 +117,15 @@ onMounted(() => {
     currencyItems.find((c) => c.value === 'USD')
   selectedCurrencyOption.value = initialOption
   userCurrency.value = initialOption?.value || currency || 'USD'
+
+  // Track page view
+  analytics.trackStep('landing')
 })
 
 watch(selectedCurrencyOption, (option) => {
   if (option) {
     userCurrency.value = option.value
+    analytics.trackCurrencyChange(option.value)
   }
 })
 
@@ -162,6 +171,9 @@ const fileInput = ref<HTMLInputElement | null>(null)
 const goToStep = (step: typeof currentStep.value) => {
   currentStep.value = step
   error.value = null
+
+  // Track step view
+  analytics.trackStep(step)
 }
 
 // Start background parsing and navigate to participants
@@ -206,6 +218,7 @@ const parseReceiptInBackground = async () => {
     const errorObj = err as { data?: { message?: string } }
     parseProgress.value = 'error'
     error.value = errorObj.data?.message || 'Failed to parse receipt'
+    analytics.trackError('upload')
   } finally {
     isParsingInBackground.value = false
   }
@@ -273,6 +286,7 @@ const proceedToAssign = () => {
 
   error.value = null
   selectedParticipantIndex.value = null // Reset selection when entering assign step
+  analytics.trackStepComplete('participants')
   goToStep('assign')
 }
 
@@ -316,6 +330,7 @@ const calculateSplit = () => {
     splitTotal: results.reduce((sum, p) => sum + p.total, 0)
   }
 
+  analytics.trackStepComplete('assign')
   goToStep('results')
 }
 
@@ -598,14 +613,22 @@ const resetApp = () => {
     <!-- Footer -->
     <footer class="py-8 border-t border-gray-800">
       <UContainer class="text-center text-gray-500">
-        Hosted on
-        <a href="https://vercel.com" target="_blank" class="text-blue-400"
-          >Vercel</a
-        >
-        • AI inference by
-        <a href="https://openrouter.ai" target="_blank" class="text-blue-400"
-          >OpenRouter</a
-        >.
+        <p>
+          Hosted on
+          <a href="https://vercel.com" target="_blank" class="text-blue-400"
+            >Vercel</a
+          >
+          • AI inference by
+          <a href="https://openrouter.ai" target="_blank" class="text-blue-400"
+            >OpenRouter</a
+          >.
+        </p>
+        <p>
+          Anonymous, cookie-free analytics with
+          <a href="https://umami.is" target="_blank" class="text-blue-400"
+            >Umami</a
+          >.
+        </p>
       </UContainer>
     </footer>
   </div>

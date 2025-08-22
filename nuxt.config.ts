@@ -8,5 +8,18 @@ export default defineNuxtConfig({
   modules: ['@nuxt/eslint', '@nuxt/ui'],
 
   // nuxt ui
-  css: ['~/assets/main.css']
+  css: ['~/assets/main.css'],
+
+  // umami analytics
+  app: {
+    head: {
+      script: [
+        {
+          defer: true,
+          src: 'https://cloud.umami.is/script.js',
+          'data-website-id': process.env.UMAMI_WEBSITE_ID || ''
+        }
+      ]
+    }
+  }
 })

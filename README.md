@@ -9,6 +9,7 @@ AI-powered bill splitter: Snap receipts, assign items with drag-&-drop, get inst
 - **Simple Item Assignment**: Assign each item to one or more people with a simple click.
 - **Instant & Accurate Calculations**: Get a real-time breakdown of who owes what.
 - **Responsive Design**: Fully functional on both desktop and mobile devices.
+- **Analytics**: Track user behavior with Umami (Anonymous, cookie-free).
 
 ## Getting Started
 
@@ -18,10 +19,12 @@ Create a `.env` file in the root of the project and add the following environmen
 
 1. You'll need an API key from [OpenRouter](https://openrouter.ai/)
 2. Completion model that support [image input and structured output](https://openrouter.ai/models?fmt=cards&input_modalities=image&supported_parameters=structured_outputs)
+3. Umami website ID (Anonymous, cookie-free analytics)
 
 ```env
 OPENROUTER_API_KEY=your_openrouter_api_key
 COMPLETION_MODEL=qwen/qwen2.5-vl-72b-instruct:free
+UMAMI_WEBSITE_ID=your_umami_website_id
 ```
 
 ### Install dependencies
