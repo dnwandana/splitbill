@@ -61,7 +61,7 @@ export default defineEventHandler(async (event) => {
     You will be given an image of a receipt and need to extract all the items with their quantities and prices.
     Parse the receipt image and identify:
     1. All individual items with their names
-    2. The quantity of each items (if available)
+    2. The quantity of each items
     3. The price of each items
     4. The total amount of the bill
     `
@@ -114,11 +114,13 @@ export default defineEventHandler(async (event) => {
                         },
                         quantity: {
                           type: 'number',
-                          description: 'The quantity of the item'
+                          description:
+                            'The quantity of the item, if not available, set to 1'
                         },
                         price: {
                           type: 'number',
-                          description: 'The price of the item'
+                          description:
+                            'The price of the item, in full number without currency symbol'
                         }
                       },
                       required: ['name', 'quantity', 'price']
@@ -126,7 +128,8 @@ export default defineEventHandler(async (event) => {
                   },
                   total: {
                     type: 'number',
-                    description: 'The total amount of the bill'
+                    description:
+                      'The total amount of the bill, in full number without currency symbol'
                   }
                 },
                 required: ['items', 'total']
