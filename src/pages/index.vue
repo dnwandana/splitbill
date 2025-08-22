@@ -25,12 +25,15 @@ interface ReceiptItem {
 
 interface Receipt {
   items: ReceiptItem[]
+  tax: number
   total: number
 }
 
 interface ParticipantResult {
   name: string
   total: number
+  itemsTotal: number
+  taxPortion: number
   items: {
     name: string
     cost: number
@@ -42,6 +45,8 @@ interface SplitResults {
   participants: ParticipantResult[]
   originalTotal: number
   splitTotal: number
+  subtotal: number
+  tax: number
 }
 
 // Application state
@@ -147,18 +152,33 @@ const participantColor = (index: number) => {
 // Real-time totals for each participant
 const participantTotals = computed(() => {
   if (!receipt.value) return []
+
+  // Calculate subtotal (items only, excluding tax)
+  const subtotal = receipt.value.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  )
+
   return participants.value.map((name, pIndex) => {
-    let total = 0
+    let itemsTotal = 0
     receipt.value!.items.forEach((item: ReceiptItem, itemIndex: number) => {
       const assignments = itemAssignments.value[itemIndex] || []
       if (assignments.includes(pIndex)) {
         const itemCost = (item.price * item.quantity) / assignments.length
-        total += itemCost
+        itemsTotal += itemCost
       }
     })
+
+    // Calculate proportional tax for this participant
+    const taxPortion =
+      subtotal > 0 ? (itemsTotal / subtotal) * (receipt.value?.tax || 0) : 0
+    const total = itemsTotal + taxPortion
+
     return {
       name: name.trim(),
-      total
+      total,
+      itemsTotal,
+      taxPortion
     }
   })
 })
@@ -300,15 +320,21 @@ const calculateSplit = () => {
     return
   }
 
+  // Calculate subtotal (items only, excluding tax)
+  const subtotal = receipt.value.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  )
+
   const results = validParticipants.map((name, pIndex) => {
-    let total = 0
+    let itemsTotal = 0
     const items: { name: string; cost: number; sharedWith: number }[] = []
 
     receipt.value!.items.forEach((item: ReceiptItem, itemIndex: number) => {
       const assignments = itemAssignments.value[itemIndex] || []
       if (assignments.includes(pIndex)) {
         const itemCost = (item.price * item.quantity) / assignments.length
-        total += itemCost
+        itemsTotal += itemCost
         items.push({
           name: item.name,
           cost: itemCost,
@@ -317,9 +343,16 @@ const calculateSplit = () => {
       }
     })
 
+    // Calculate proportional tax for this participant
+    const taxPortion =
+      subtotal > 0 ? (itemsTotal / subtotal) * (receipt.value?.tax || 0) : 0
+    const total = itemsTotal + taxPortion
+
     return {
       name: name.trim(),
       total: Math.round(total * 100) / 100,
+      itemsTotal: Math.round(itemsTotal * 100) / 100,
+      taxPortion: Math.round(taxPortion * 100) / 100,
       items
     }
   })
@@ -327,7 +360,9 @@ const calculateSplit = () => {
   splitResults.value = {
     participants: results,
     originalTotal: receipt.value!.total,
-    splitTotal: results.reduce((sum, p) => sum + p.total, 0)
+    splitTotal: results.reduce((sum, p) => sum + p.total, 0),
+    subtotal: subtotal,
+    tax: receipt.value!.tax || 0
   }
 
   analytics.trackStepComplete('assign')
@@ -1083,7 +1118,26 @@ const resetApp = () => {
 
         <!-- Total and Actions -->
         <div class="mt-8 text-center">
-          <div class="mb-6">
+          <div class="mb-6 space-y-2">
+            <div class="flex justify-center items-center space-x-8 text-lg">
+              <div class="text-gray-300">
+                Subtotal:
+                <span class="font-bold text-white">{{
+                  formatCurrency(
+                    (receipt?.items || []).reduce(
+                      (sum, item) => sum + item.price * item.quantity,
+                      0
+                    )
+                  )
+                }}</span>
+              </div>
+              <div v-if="receipt?.tax && receipt.tax > 0" class="text-gray-300">
+                Tax:
+                <span class="font-bold text-orange-400">{{
+                  formatCurrency(receipt.tax)
+                }}</span>
+              </div>
+            </div>
             <p class="text-lg text-gray-300">
               Total:
               <span class="font-bold text-2xl text-white">{{
@@ -1129,21 +1183,27 @@ const resetApp = () => {
         <!-- Summary -->
         <UCard class="mb-8 bg-[#090b29] text-white">
           <div class="text-center">
-            <div class="grid md:grid-cols-3 gap-4">
+            <div class="grid md:grid-cols-4 gap-4">
               <div>
-                <p class="text-sm text-gray-400">Original Total</p>
+                <p class="text-sm text-gray-400">Subtotal</p>
+                <p class="text-2xl font-bold">
+                  {{ formatCurrency(splitResults?.subtotal || 0) }}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Tax</p>
+                <p class="text-2xl font-bold text-orange-400">
+                  {{ formatCurrency(splitResults?.tax || 0) }}
+                </p>
+              </div>
+              <div>
+                <p class="text-sm text-gray-400">Total</p>
                 <p class="text-2xl font-bold">
                   {{ formatCurrency(splitResults?.originalTotal || 0) }}
                 </p>
               </div>
               <div>
-                <p class="text-sm text-gray-400">Split Total</p>
-                <p class="text-2xl font-bold">
-                  {{ formatCurrency(splitResults?.splitTotal || 0) }}
-                </p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-400">Difference</p>
+                <p class="text-sm text-gray-400">Split Accuracy</p>
                 <p
                   class="text-2xl font-bold"
                   :class="
@@ -1156,12 +1216,17 @@ const resetApp = () => {
                   "
                 >
                   {{
-                    formatCurrency(
-                      Math.abs(
-                        (splitResults?.originalTotal || 0) -
-                          (splitResults?.splitTotal || 0)
-                      )
-                    )
+                    Math.abs(
+                      (splitResults?.originalTotal || 0) -
+                        (splitResults?.splitTotal || 0)
+                    ) < 0.01
+                      ? '✓'
+                      : formatCurrency(
+                          Math.abs(
+                            (splitResults?.originalTotal || 0) -
+                              (splitResults?.splitTotal || 0)
+                          )
+                        ) + ' off'
                   }}
                 </p>
               </div>
@@ -1186,6 +1251,7 @@ const resetApp = () => {
             </template>
 
             <div class="space-y-2">
+              <!-- Items breakdown -->
               <div
                 v-for="item in participant.items"
                 :key="item.name"
@@ -1202,6 +1268,44 @@ const resetApp = () => {
                 <span class="text-sm font-medium">{{
                   formatCurrency(item.cost)
                 }}</span>
+              </div>
+
+              <!-- Tax breakdown -->
+              <div
+                v-if="participant.taxPortion > 0"
+                class="flex justify-between items-center py-1 border-b border-gray-800"
+              >
+                <span class="text-sm text-orange-400">
+                  Tax (proportional share)
+                </span>
+                <span class="text-sm font-medium text-orange-400">{{
+                  formatCurrency(participant.taxPortion)
+                }}</span>
+              </div>
+
+              <!-- Subtotal and total -->
+              <div class="pt-2 space-y-1">
+                <div
+                  class="flex justify-between items-center text-sm text-gray-400"
+                >
+                  <span>Items subtotal:</span>
+                  <span>{{ formatCurrency(participant.itemsTotal) }}</span>
+                </div>
+                <div
+                  v-if="participant.taxPortion > 0"
+                  class="flex justify-between items-center text-sm text-orange-400"
+                >
+                  <span>Tax share:</span>
+                  <span>{{ formatCurrency(participant.taxPortion) }}</span>
+                </div>
+                <div
+                  class="flex justify-between items-center text-lg font-bold border-t border-gray-700 pt-1"
+                >
+                  <span>Total:</span>
+                  <span class="text-blue-400">{{
+                    formatCurrency(participant.total)
+                  }}</span>
+                </div>
               </div>
             </div>
           </UCard>

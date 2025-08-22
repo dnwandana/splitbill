@@ -1,6 +1,18 @@
 import { H3Error } from 'h3'
 import { z } from 'zod'
 
+interface ReceiptItem {
+  name: string
+  quantity: number
+  price: number
+}
+
+interface Receipt {
+  items: ReceiptItem[]
+  tax: number
+  total: number
+}
+
 // validation schema for form data
 const receiptFileSchema = z.object({
   name: z.literal('receipt'),
@@ -126,6 +138,11 @@ export default defineEventHandler(async (event) => {
                       required: ['name', 'quantity', 'price']
                     }
                   },
+                  tax: {
+                    type: 'number',
+                    description:
+                      'The tax amount of the bill, in full number without currency symbol, if not available, set to 0'
+                  },
                   total: {
                     type: 'number',
                     description:
@@ -143,7 +160,7 @@ export default defineEventHandler(async (event) => {
     // parse the completion response
     const completion = await response.json()
     console.log('completion response', JSON.stringify(completion, null, 2))
-    const receipt = JSON.parse(completion.choices[0].message.content)
+    const receipt = JSON.parse(completion.choices[0].message.content) as Receipt
 
     return {
       message: 'OK',
