@@ -14,11 +14,14 @@ AI-powered bill splitter: Snap receipts, assign items with drag-&-drop, get inst
 
 ### Set up environment variables
 
-Create a `.env` file in the root of the project and add the following environment variables. You'll need an API key from [OpenRouter](https://openrouter.ai/).
+Create a `.env` file in the root of the project and add the following environment variables.
+
+1. You'll need an API key from [OpenRouter](https://openrouter.ai/)
+2. Completion model that support [image input and structured output](https://openrouter.ai/models?fmt=cards&input_modalities=image&supported_parameters=structured_outputs)
 
 ```env
 OPENROUTER_API_KEY=your_openrouter_api_key
-COMPLETION_MODEL=openrouter/horizon-beta
+COMPLETION_MODEL=qwen/qwen2.5-vl-72b-instruct:free
 ```
 
 ### Install dependencies
