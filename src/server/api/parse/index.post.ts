@@ -84,7 +84,9 @@ export default defineEventHandler(async (event) => {
       {
         headers: {
           Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
+          'HTTP-Referer': 'https://splitbill.wandana.dev',
+          'X-Title': 'splitbill.wandana.dev'
         },
         method: 'POST',
         body: JSON.stringify({
@@ -110,7 +112,8 @@ export default defineEventHandler(async (event) => {
           response_format: {
             type: 'json_schema',
             json_schema: {
-              name: 'items_schema',
+              name: 'receipt_details',
+              strict: true,
               schema: {
                 type: 'object',
                 properties: {
@@ -135,6 +138,7 @@ export default defineEventHandler(async (event) => {
                             'The price of the item, in full number without currency symbol'
                         }
                       },
+                      additionalProperties: false,
                       required: ['name', 'quantity', 'price']
                     }
                   },
@@ -149,7 +153,8 @@ export default defineEventHandler(async (event) => {
                       'The total amount of the bill, in full number without currency symbol'
                   }
                 },
-                required: ['items', 'total']
+                additionalProperties: false,
+                required: ['items', 'tax', 'total']
               }
             }
           }
