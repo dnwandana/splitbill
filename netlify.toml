@@ -2,8 +2,7 @@
   command = "npm run build"
   publish = "dist"
 
-[[redirects]]
-  from = "/*"
-  to = "/.netlify/functions/server"
-  status = 200
+[functions]
+  directory = ".netlify/functions-internal"
+  node_bundler = "none"
 
