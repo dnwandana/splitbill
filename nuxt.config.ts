@@ -2,10 +2,15 @@
 export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   devtools: { enabled: true },
-  ssr: false,
+  ssr: true,
   srcDir: 'src',
   serverDir: 'src/server',
   modules: ['@nuxt/eslint', '@nuxt/ui'],
+
+  // netlify deployment configuration
+  nitro: {
+    preset: 'netlify'
+  },
 
   // nuxt ui
   css: ['~/assets/main.css'],
