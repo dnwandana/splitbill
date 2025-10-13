@@ -51,7 +51,7 @@ interface SplitResults {
 
 // Application state
 const currentStep = ref<
-  'landing' | 'upload' | 'participants' | 'assign' | 'results'
+  'landing' | 'upload' | 'participants' | 'review' | 'assign' | 'results'
 >('landing')
 const file = ref<File | null>(null)
 const isParsingInBackground = ref(false)
@@ -290,7 +290,7 @@ const selectParticipant = (participantIndex: number) => {
   selectedParticipantIndex.value = participantIndex
 }
 
-// Navigate to assign step (with validation)
+// Navigate to review step (with validation)
 const proceedToAssign = () => {
   const validParticipants = participants.value.filter((p) => p.trim())
   if (validParticipants.length === 0) {
@@ -305,10 +305,118 @@ const proceedToAssign = () => {
   }
 
   error.value = null
-  selectedParticipantIndex.value = null // Reset selection when entering assign step
   analytics.trackStepComplete('participants')
+  goToStep('review')
+}
+
+// Navigate to assign step from review (with validation)
+const proceedToAssignFromReview = () => {
+  if (!receipt.value || receipt.value.items.length === 0) {
+    error.value = 'Please add at least one item'
+    return
+  }
+
+  error.value = null
+  selectedParticipantIndex.value = null // Reset selection when entering assign step
+  analytics.trackStepComplete('review')
   goToStep('assign')
 }
+
+// Item management functions for review step
+const updateItemName = (index: number, name: string) => {
+  if (receipt.value && receipt.value.items[index]) {
+    receipt.value.items[index].name = name
+  }
+}
+
+const updateItemQuantity = (index: number, quantity: number) => {
+  if (receipt.value && receipt.value.items[index]) {
+    const parsedQuantity = parseFloat(String(quantity))
+    if (!isNaN(parsedQuantity) && parsedQuantity > 0) {
+      receipt.value.items[index].quantity = parsedQuantity
+      recalculateTotal()
+    }
+  }
+}
+
+const updateItemPrice = (index: number, price: number) => {
+  if (receipt.value && receipt.value.items[index]) {
+    const parsedPrice = parseFloat(String(price))
+    if (!isNaN(parsedPrice) && parsedPrice >= 0) {
+      receipt.value.items[index].price = parsedPrice
+      recalculateTotal()
+    }
+  }
+}
+
+const removeItem = (index: number) => {
+  if (receipt.value && receipt.value.items.length > 1) {
+    receipt.value.items.splice(index, 1)
+
+    // Remove and update item assignments
+    const newAssignments: Record<number, number[]> = {}
+    Object.keys(itemAssignments.value).forEach((itemIndexStr) => {
+      const itemIndex = parseInt(itemIndexStr)
+      if (itemIndex < index) {
+        // Keep assignments for items before the removed one
+        const assignments = itemAssignments.value[itemIndex]
+        if (assignments) {
+          newAssignments[itemIndex] = assignments
+        }
+      } else if (itemIndex > index) {
+        // Shift down assignments for items after the removed one
+        const assignments = itemAssignments.value[itemIndex]
+        if (assignments) {
+          newAssignments[itemIndex - 1] = assignments
+        }
+      }
+      // Skip the removed item's assignments
+    })
+    itemAssignments.value = newAssignments
+    recalculateTotal()
+  }
+}
+
+const addNewItem = () => {
+  if (receipt.value) {
+    receipt.value.items.push({
+      name: '',
+      quantity: 1,
+      price: 0
+    })
+    // Initialize assignments for the new item
+    itemAssignments.value[receipt.value.items.length - 1] = []
+  }
+}
+
+const updateTax = (tax: number) => {
+  if (receipt.value) {
+    const parsedTax = parseFloat(String(tax))
+    if (!isNaN(parsedTax) && parsedTax >= 0) {
+      receipt.value.tax = parsedTax
+      recalculateTotal()
+    }
+  }
+}
+
+const recalculateTotal = () => {
+  if (receipt.value) {
+    const subtotal = receipt.value.items.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    )
+    receipt.value.total = subtotal + (receipt.value.tax || 0)
+  }
+}
+
+// Computed property for subtotal
+const receiptSubtotal = computed(() => {
+  if (!receipt.value) return 0
+  return receipt.value.items.reduce(
+    (sum, item) => sum + item.price * item.quantity,
+    0
+  )
+})
 
 // Calculate split
 const calculateSplit = () => {
@@ -947,9 +1055,9 @@ const resetApp = () => {
     </UContainer>
   </div>
 
-  <!-- Assign Items Step -->
+  <!-- Review Receipt Step -->
   <div
-    v-else-if="currentStep === 'assign'"
+    v-else-if="currentStep === 'review'"
     class="min-h-screen bg-[#020420] text-white"
   >
     <UContainer class="py-8">
@@ -962,6 +1070,196 @@ const resetApp = () => {
             @click="goToStep('participants')"
           >
             ← Back to Participants
+          </UButton>
+          <h1 class="text-4xl font-bold text-white mb-2">
+            Review Your Receipt
+          </h1>
+          <p class="text-gray-400">
+            Double-check the details and make any adjustments before assigning
+            items.
+          </p>
+        </div>
+
+        <!-- Items Card -->
+        <UCard class="mb-6 bg-[#090b29] text-white">
+          <template #header>
+            <div class="flex justify-between items-center">
+              <h3 class="text-lg font-semibold">Receipt Items</h3>
+              <UButton
+                size="sm"
+                color="primary"
+                class="cursor-pointer"
+                @click="addNewItem"
+              >
+                <Icon name="i-heroicons-plus" class="w-4 h-4 mr-1" />
+                Add Item
+              </UButton>
+            </div>
+          </template>
+
+          <div class="space-y-4">
+            <div
+              v-for="(item, index) in receipt?.items || []"
+              :key="index"
+              class="border border-gray-700 rounded-lg p-4"
+            >
+              <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+                <!-- Item Name -->
+                <div class="md:col-span-5">
+                  <label class="text-xs text-gray-400 mb-1 block"
+                    >Item Name</label
+                  >
+                  <UInput
+                    :model-value="item.name"
+                    placeholder="Item name"
+                    class="w-full"
+                    :ui="{ base: 'bg-gray-800 text-white' }"
+                    @update:model-value="updateItemName(index, $event)"
+                  />
+                </div>
+
+                <!-- Quantity -->
+                <div class="md:col-span-2">
+                  <label class="text-xs text-gray-400 mb-1 block"
+                    >Quantity</label
+                  >
+                  <UInput
+                    :model-value="item.quantity"
+                    type="number"
+                    min="0.01"
+                    step="0.01"
+                    placeholder="Qty"
+                    class="w-full"
+                    :ui="{ base: 'bg-gray-800 text-white' }"
+                    @update:model-value="updateItemQuantity(index, $event)"
+                  />
+                </div>
+
+                <!-- Price -->
+                <div class="md:col-span-2">
+                  <label class="text-xs text-gray-400 mb-1 block">Price</label>
+                  <UInput
+                    :model-value="item.price"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    placeholder="Price"
+                    class="w-full"
+                    :ui="{ base: 'bg-gray-800 text-white' }"
+                    @update:model-value="updateItemPrice(index, $event)"
+                  />
+                </div>
+
+                <!-- Total -->
+                <div class="md:col-span-2">
+                  <label class="text-xs text-gray-400 mb-1 block">Total</label>
+                  <div class="text-white font-semibold py-2">
+                    {{ formatCurrency(item.quantity * item.price) }}
+                  </div>
+                </div>
+
+                <!-- Delete Button -->
+                <div class="md:col-span-1 flex items-end justify-end">
+                  <UButton
+                    v-if="(receipt?.items || []).length > 1"
+                    color="error"
+                    variant="ghost"
+                    icon="i-heroicons-trash"
+                    class="cursor-pointer"
+                    size="sm"
+                    @click="removeItem(index)"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Summary Card -->
+        <UCard class="bg-[#090b29] text-white">
+          <template #header>
+            <h3 class="text-lg font-semibold">Summary</h3>
+          </template>
+
+          <div class="space-y-4">
+            <!-- Subtotal (auto-calculated) -->
+            <div
+              class="flex justify-between items-center py-2 border-b border-gray-800"
+            >
+              <span class="text-gray-300">Subtotal:</span>
+              <span class="font-semibold text-lg">{{
+                formatCurrency(receiptSubtotal)
+              }}</span>
+            </div>
+
+            <!-- Tax (editable) -->
+            <div
+              class="flex justify-between items-center py-2 border-b border-gray-800"
+            >
+              <span class="text-gray-300">Tax:</span>
+              <div class="w-32">
+                <UInput
+                  :model-value="receipt?.tax || 0"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Tax"
+                  class="w-full"
+                  :ui="{ base: 'bg-gray-800 text-white' }"
+                  @update:model-value="updateTax($event)"
+                />
+              </div>
+            </div>
+
+            <!-- Total (auto-calculated) -->
+            <div class="flex justify-between items-center py-2">
+              <span class="text-gray-300 font-semibold">Total:</span>
+              <span class="font-bold text-2xl text-blue-400">{{
+                formatCurrency(receipt?.total || 0)
+              }}</span>
+            </div>
+          </div>
+        </UCard>
+
+        <!-- Error Display -->
+        <UAlert
+          v-if="error"
+          color="error"
+          variant="soft"
+          :title="error"
+          class="mt-6"
+        />
+
+        <!-- Action Buttons -->
+        <div class="flex justify-center mt-8">
+          <UButton
+            size="lg"
+            color="primary"
+            class="px-8 py-3 text-lg cursor-pointer"
+            @click="proceedToAssignFromReview"
+          >
+            Continue to Assignment
+          </UButton>
+        </div>
+      </div>
+    </UContainer>
+  </div>
+
+  <!-- Assign Items Step -->
+  <div
+    v-else-if="currentStep === 'assign'"
+    class="min-h-screen bg-[#020420] text-white"
+  >
+    <UContainer class="py-8">
+      <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+          <UButton
+            variant="link"
+            class="mb-4 text-green-400 hover:text-green-300 cursor-pointer"
+            @click="goToStep('review')"
+          >
+            ← Back to Review
           </UButton>
           <h1 class="text-4xl font-bold text-white mb-2">Who Gets What?</h1>
           <p class="text-gray-400">
