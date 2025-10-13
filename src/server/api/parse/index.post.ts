@@ -76,6 +76,11 @@ export default defineEventHandler(async (event) => {
     2. The quantity of each items
     3. The price of each items
     4. The total amount of the bill
+    5. The tax amount of the bill
+    6. The total amount of the bill
+
+    Important: If no subtotal is shown, the listed price may represent the total cost for that item (quantity * unit price) rather than the price per unit.
+    
     `
 
     // send completion request
