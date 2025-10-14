@@ -60,7 +60,7 @@ const parseProgress = ref<
 >('idle')
 const receipt = ref<Receipt | null>(null)
 const participants = ref<string[]>([''])
-const itemAssignments = ref<Record<number, number[]>>({})
+const itemAssignments = ref<Record<number, Record<number, number>>>({})
 const splitResults = ref<SplitResults | null>(null)
 const error = ref<string | null>(null)
 const selectedParticipantIndex = ref<number | null>(null)
@@ -162,9 +162,20 @@ const participantTotals = computed(() => {
   return participants.value.map((name, pIndex) => {
     let itemsTotal = 0
     receipt.value!.items.forEach((item: ReceiptItem, itemIndex: number) => {
-      const assignments = itemAssignments.value[itemIndex] || []
-      if (assignments.includes(pIndex)) {
-        const itemCost = (item.price * item.quantity) / assignments.length
+      const assignments = itemAssignments.value[itemIndex] || {}
+      const quantity = assignments[pIndex] || 0
+      if (quantity > 0) {
+        // Calculate total assigned quantity for this item
+        const totalAssignedQty = Object.values(assignments).reduce(
+          (sum, qty) => sum + qty,
+          0
+        )
+        // Split the total item cost proportionally
+        const totalItemCost = item.price * item.quantity
+        const itemCost =
+          totalAssignedQty > 0
+            ? (quantity / totalAssignedQty) * totalItemCost
+            : 0
         itemsTotal += itemCost
       }
     })
@@ -231,7 +242,7 @@ const parseReceiptInBackground = async () => {
     // Initialize assignments for each item
     itemAssignments.value = {}
     receipt.value.items.forEach((_: ReceiptItem, index: number) => {
-      itemAssignments.value[index] = []
+      itemAssignments.value[index] = {}
     })
     parseProgress.value = 'complete'
   } catch (err: unknown) {
@@ -253,13 +264,26 @@ const addParticipant = () => {
 const removeParticipant = (index: number) => {
   if (participants.value.length > 1) {
     participants.value.splice(index, 1)
-    // Remove this participant from all assignments
+    // Remove this participant from all assignments and reindex
     Object.keys(itemAssignments.value).forEach((itemIndexStr) => {
       const itemIndex = parseInt(itemIndexStr)
       if (itemAssignments.value[itemIndex]) {
-        itemAssignments.value[itemIndex] = itemAssignments.value[itemIndex]
-          .filter((pIndex) => pIndex !== index)
-          .map((pIndex) => (pIndex > index ? pIndex - 1 : pIndex))
+        const assignments = itemAssignments.value[itemIndex]
+        const newAssignments: Record<number, number> = {}
+
+        Object.keys(assignments).forEach((pIndexStr) => {
+          const pIndex = parseInt(pIndexStr)
+          if (pIndex !== index) {
+            // Reindex participants after the removed one
+            const newPIndex = pIndex > index ? pIndex - 1 : pIndex
+            const quantity = assignments[pIndex]
+            if (quantity !== undefined) {
+              newAssignments[newPIndex] = quantity
+            }
+          }
+        })
+
+        itemAssignments.value[itemIndex] = newAssignments
       }
     })
   }
@@ -270,19 +294,54 @@ const assignItemToSelected = (itemIndex: number) => {
   if (selectedParticipantIndex.value === null) return
 
   if (!itemAssignments.value[itemIndex]) {
-    itemAssignments.value[itemIndex] = []
+    itemAssignments.value[itemIndex] = {}
   }
 
   const assignments = itemAssignments.value[itemIndex]
   const participantIndex = selectedParticipantIndex.value
-  const index = assignments.indexOf(participantIndex)
 
-  // Toggle assignment
-  if (index === -1) {
-    assignments.push(participantIndex)
-  } else {
-    assignments.splice(index, 1)
+  // Assign with default quantity of 1 if not already assigned
+  if (!assignments[participantIndex]) {
+    assignments[participantIndex] = 1
   }
+}
+
+// Increase item quantity for a participant
+const increaseItemQuantity = (itemIndex: number, participantIndex: number) => {
+  if (!itemAssignments.value[itemIndex]) {
+    itemAssignments.value[itemIndex] = {}
+  }
+  const assignments = itemAssignments.value[itemIndex]
+  const currentQty = assignments[participantIndex] || 0
+  assignments[participantIndex] = currentQty + 1
+}
+
+// Decrease item quantity for a participant
+const decreaseItemQuantity = (itemIndex: number, participantIndex: number) => {
+  if (!itemAssignments.value[itemIndex]) return
+
+  const assignments = itemAssignments.value[itemIndex]
+  const currentQty = assignments[participantIndex] || 0
+
+  if (currentQty > 1) {
+    assignments[participantIndex] = currentQty - 1
+  } else if (currentQty === 1) {
+    // Remove assignment if quantity reaches 0
+    const newAssignments = { ...assignments }
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete newAssignments[participantIndex]
+    itemAssignments.value[itemIndex] = newAssignments
+  }
+}
+
+// Remove assignment completely
+const removeAssignment = (itemIndex: number, participantIndex: number) => {
+  if (!itemAssignments.value[itemIndex]) return
+  const assignments = itemAssignments.value[itemIndex]
+  const newAssignments = { ...assignments }
+  // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+  delete newAssignments[participantIndex]
+  itemAssignments.value[itemIndex] = newAssignments
 }
 
 // Select participant for assignment
@@ -354,7 +413,7 @@ const removeItem = (index: number) => {
     receipt.value.items.splice(index, 1)
 
     // Remove and update item assignments
-    const newAssignments: Record<number, number[]> = {}
+    const newAssignments: Record<number, Record<number, number>> = {}
     Object.keys(itemAssignments.value).forEach((itemIndexStr) => {
       const itemIndex = parseInt(itemIndexStr)
       if (itemIndex < index) {
@@ -385,7 +444,7 @@ const addNewItem = () => {
       price: 0
     })
     // Initialize assignments for the new item
-    itemAssignments.value[receipt.value.items.length - 1] = []
+    itemAssignments.value[receipt.value.items.length - 1] = {}
   }
 }
 
@@ -439,14 +498,27 @@ const calculateSplit = () => {
     const items: { name: string; cost: number; sharedWith: number }[] = []
 
     receipt.value!.items.forEach((item: ReceiptItem, itemIndex: number) => {
-      const assignments = itemAssignments.value[itemIndex] || []
-      if (assignments.includes(pIndex)) {
-        const itemCost = (item.price * item.quantity) / assignments.length
+      const assignments = itemAssignments.value[itemIndex] || {}
+      const quantity = assignments[pIndex] || 0
+      if (quantity > 0) {
+        // Calculate total assigned quantity for this item
+        const totalAssignedQty = Object.values(assignments).reduce(
+          (sum, qty) => sum + qty,
+          0
+        )
+        // Calculate how many people are sharing this item
+        const sharedWith = Object.keys(assignments).length
+        // Split the total item cost proportionally
+        const totalItemCost = item.price * item.quantity
+        const itemCost =
+          totalAssignedQty > 0
+            ? (quantity / totalAssignedQty) * totalItemCost
+            : 0
         itemsTotal += itemCost
         items.push({
-          name: item.name,
+          name: `${item.name} (x${quantity})`,
           cost: itemCost,
-          sharedWith: assignments.length
+          sharedWith
         })
       }
     })
@@ -1334,21 +1406,15 @@ const resetApp = () => {
               <div
                 v-for="(item, itemIndex) in receipt?.items || []"
                 :key="itemIndex"
-                class="border-2 rounded-lg p-3 sm:p-4 transition-all duration-200 cursor-pointer hover:border-blue-400"
+                class="border-2 rounded-lg p-3 sm:p-4 transition-all duration-200"
                 :class="[
                   selectedParticipantIndex !== null
-                    ? 'border-gray-600 hover:bg-blue-500/10'
-                    : 'border-gray-700 cursor-not-allowed opacity-60'
+                    ? 'border-gray-600'
+                    : 'border-gray-700 opacity-60'
                 ]"
-                @click="
-                  selectedParticipantIndex !== null
-                    ? assignItemToSelected(itemIndex)
-                    : null
-                "
               >
-                <div
-                  class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
-                >
+                <div class="flex flex-col gap-4">
+                  <!-- Item info -->
                   <div class="flex-1">
                     <h4 class="font-medium">{{ item.name }}</h4>
                     <p class="text-sm text-gray-400">
@@ -1360,53 +1426,118 @@ const resetApp = () => {
                     </div>
                   </div>
 
-                  <div class="flex items-center gap-3">
-                    <!-- Assigned participants avatars -->
-                    <div class="flex -space-x-2 flex-shrink-0 min-w-0">
-                      <template
-                        v-for="(p, pIndex) in participants"
-                        :key="pIndex"
+                  <!-- Assigned participants with quantities -->
+                  <div class="flex flex-wrap gap-2">
+                    <template v-for="(p, pIndex) in participants" :key="pIndex">
+                      <div
+                        v-if="
+                          (itemAssignments[itemIndex] || {})[pIndex] && p.trim()
+                        "
+                        class="flex items-center gap-2 bg-gray-700/50 rounded-full px-3 py-1"
                       >
                         <span
-                          v-if="
-                            (itemAssignments[itemIndex] || []).includes(
-                              pIndex
-                            ) && p.trim()
-                          "
-                          class="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold border-2 border-[#090b29] text-xs"
+                          class="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
                           :style="{ backgroundColor: participantColor(pIndex) }"
-                          :title="p.trim()"
                         >
                           {{ p?.trim()?.[0]?.toUpperCase() || 'P' }}
                         </span>
-                      </template>
-                      <span
-                        v-if="!(itemAssignments[itemIndex] || []).length"
-                        class="w-8 h-8 rounded-full border-2 border-dashed border-gray-500 flex items-center justify-center text-gray-500 text-xs"
-                        title="Not assigned"
-                      >
-                        ?
-                      </span>
+                        <span class="text-sm">{{ p.trim() }}</span>
+                        <span class="text-xs text-blue-400 font-semibold">
+                          x{{ (itemAssignments[itemIndex] || {})[pIndex] }}
+                        </span>
+                      </div>
+                    </template>
+                    <div
+                      v-if="
+                        !Object.keys(itemAssignments[itemIndex] || {}).length
+                      "
+                      class="text-xs text-gray-500 px-3 py-1"
+                    >
+                      Not assigned yet
                     </div>
+                  </div>
 
-                    <!-- Assignment status indicator -->
-                    <div class="text-right">
-                      <div
-                        v-if="selectedParticipantIndex !== null"
-                        class="text-xs text-gray-400"
-                      >
-                        {{
-                          (itemAssignments[itemIndex] || []).includes(
-                            selectedParticipantIndex
-                          )
-                            ? 'Click to unassign'
-                            : 'Click to assign'
-                        }}
-                      </div>
-                      <div v-else class="text-xs text-gray-500">
-                        Select a member first
+                  <!-- Selected participant controls -->
+                  <div
+                    v-if="selectedParticipantIndex !== null"
+                    class="border-t border-gray-700 pt-3"
+                  >
+                    <div
+                      v-if="
+                        (itemAssignments[itemIndex] || {})[
+                          selectedParticipantIndex
+                        ]
+                      "
+                      class="flex items-center justify-between"
+                    >
+                      <span class="text-sm text-gray-400">
+                        {{ participants[selectedParticipantIndex]?.trim() }}'s
+                        quantity:
+                      </span>
+                      <div class="flex items-center gap-2">
+                        <UButton
+                          size="sm"
+                          color="neutral"
+                          variant="outline"
+                          icon="i-heroicons-minus"
+                          class="cursor-pointer"
+                          @click.stop="
+                            decreaseItemQuantity(
+                              itemIndex,
+                              selectedParticipantIndex
+                            )
+                          "
+                        />
+                        <span class="text-lg font-bold w-12 text-center">
+                          {{
+                            (itemAssignments[itemIndex] || {})[
+                              selectedParticipantIndex
+                            ]
+                          }}
+                        </span>
+                        <UButton
+                          size="sm"
+                          color="neutral"
+                          variant="outline"
+                          icon="i-heroicons-plus"
+                          class="cursor-pointer"
+                          @click.stop="
+                            increaseItemQuantity(
+                              itemIndex,
+                              selectedParticipantIndex
+                            )
+                          "
+                        />
+                        <UButton
+                          size="sm"
+                          color="error"
+                          variant="outline"
+                          class="cursor-pointer ml-2"
+                          @click.stop="
+                            removeAssignment(
+                              itemIndex,
+                              selectedParticipantIndex
+                            )
+                          "
+                        >
+                          Remove
+                        </UButton>
                       </div>
                     </div>
+                    <div v-else>
+                      <UButton
+                        size="sm"
+                        color="primary"
+                        class="cursor-pointer w-full"
+                        @click="assignItemToSelected(itemIndex)"
+                      >
+                        Assign to
+                        {{ participants[selectedParticipantIndex]?.trim() }}
+                      </UButton>
+                    </div>
+                  </div>
+                  <div v-else class="text-xs text-gray-500 text-center py-2">
+                    Select a squad member above to assign this item
                   </div>
                 </div>
               </div>
