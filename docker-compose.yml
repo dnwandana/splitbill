@@ -1,0 +1,31 @@
+services:
+  splitbill:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - NODE_ENV=production
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - COMPLETION_MODEL=${COMPLETION_MODEL}
+      - UMAMI_WEBSITE_ID=${UMAMI_WEBSITE_ID}
+    restart: unless-stopped
+    networks:
+      - splitbill-network
+
+  nginx:
+    image: nginx:alpine
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - splitbill
+    restart: unless-stopped
+    networks:
+      - splitbill-network
+
+networks:
+  splitbill-network:
+    driver: bridge

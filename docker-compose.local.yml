@@ -1,0 +1,13 @@
+services:
+  splitbill:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    environment:
+      - NODE_ENV=production
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
+      - COMPLETION_MODEL=${COMPLETION_MODEL}
+      - UMAMI_WEBSITE_ID=${UMAMI_WEBSITE_ID}
+    restart: unless-stopped
