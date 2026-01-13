@@ -677,7 +677,7 @@ const resetApp = () => {
               >SplitBill</span
             >
           </div>
-          <div class="flex items-center gap-6">
+          <div class="flex items-center gap-6 select-editorial-wrapper">
             <USelectMenu
               v-model="selectedCurrencyOption"
               :items="currencyItems"
@@ -686,9 +686,6 @@ const resetApp = () => {
               placeholder="Currency"
               searchable
               class="w-28 md:w-40 animate-fade-in delay-1"
-              :ui="{
-                base: 'font-mono text-sm'
-              }"
             />
           </div>
         </div>
@@ -1214,29 +1211,41 @@ const resetApp = () => {
   <!-- Upload Receipt Step -->
   <div
     v-else-if="currentStep === 'upload'"
-    class="min-h-screen bg-[#020420] flex flex-col items-center justify-center p-4"
+    class="step-page-editorial flex flex-col items-center justify-center p-4 py-12"
   >
     <div class="w-full max-w-2xl">
       <!-- Header -->
-      <div class="text-center mb-8">
-        <UButton
-          variant="link"
-          class="mb-4 text-green-400 hover:text-green-300 cursor-pointer"
-          @click="goToStep('landing')"
-        >
-          ← Back to Home
-        </UButton>
-        <h1 class="text-4xl font-bold text-white mb-2">Receipt Ready?</h1>
-        <p class="text-gray-400">
+      <div class="step-header-editorial">
+        <button class="back-link-editorial mb-6" @click="goToStep('landing')">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Home
+        </button>
+        <h1 class="step-title-editorial">Receipt Ready?</h1>
+        <p class="step-subtitle-editorial">
           Sharp photo in, fair split out. Simple as that.
         </p>
       </div>
 
       <!-- File Upload -->
-      <div class="mb-6">
+      <div class="mb-8">
         <div
-          class="relative border-2 border-dashed border-gray-600 rounded-lg p-8 text-center bg-[#090b29] hover:border-gray-500 transition-colors cursor-pointer"
-          :class="{ 'border-green-400 bg-green-900/10': isDragOver }"
+          class="upload-zone-editorial"
+          :class="{
+            'drag-over': isDragOver,
+            'has-file': file
+          }"
           @dragover.prevent="onDragOver"
           @dragleave.prevent="onDragLeave"
           @drop.prevent="onDrop"
@@ -1250,34 +1259,57 @@ const resetApp = () => {
             @change="onFileSelect"
           />
 
-          <div class="flex flex-col items-center justify-center text-white">
-            <Icon
-              name="i-heroicons-camera"
-              class="w-16 h-16 text-gray-500 mb-4"
-            />
-            <div v-if="file">
-              <p class="text-lg font-medium mb-2">
+          <div class="flex flex-col items-center justify-center">
+            <div class="w-16 h-16 mb-6 flex items-center justify-center">
+              <svg
+                class="w-full h-full"
+                :class="
+                  file
+                    ? 'text-[var(--color-accent)]'
+                    : 'text-[var(--color-border)]'
+                "
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                />
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="1.5"
+                  d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                />
+              </svg>
+            </div>
+            <div v-if="file" class="text-center">
+              <p
+                class="font-serif text-xl mb-2 text-[var(--color-text-primary)]"
+              >
                 {{ file.name }}
               </p>
-              <p class="text-sm text-gray-400 mb-4">
+              <p class="text-caption mb-4">
                 {{ formatFileSize(file.size) }}
               </p>
-              <UButton
-                color="error"
-                variant="outline"
-                size="sm"
-                class="cursor-pointer"
+              <button
+                class="btn-editorial btn-editorial-sm btn-editorial-danger"
                 @click.stop="clearFile"
               >
-                Remove File
-              </UButton>
+                <span>Remove File</span>
+              </button>
             </div>
-            <div v-else>
-              <p class="text-lg font-medium mb-2">
-                Upload your receipt and let the magic happen
+            <div v-else class="text-center">
+              <p
+                class="font-serif text-xl mb-2 text-[var(--color-text-primary)]"
+              >
+                Drop your receipt here
               </p>
-              <p class="text-sm text-gray-500">
-                Supports JPEG, PNG, and WebP files up to 10MB
+              <p class="text-caption">
+                or click to browse · JPEG, PNG, WebP up to 10MB
               </p>
             </div>
           </div>
@@ -1285,458 +1317,591 @@ const resetApp = () => {
       </div>
 
       <!-- Error Display -->
-      <UAlert
-        v-if="error"
-        color="error"
-        variant="soft"
-        :title="error"
-        class="mb-6"
-      />
+      <div v-if="error" class="alert-editorial alert-editorial-error mb-8">
+        {{ error }}
+      </div>
 
       <!-- Action Buttons -->
       <div class="flex justify-center">
-        <UButton
+        <button
           :disabled="!file"
-          size="lg"
-          color="primary"
-          class="px-8 py-3 text-lg cursor-pointer"
+          class="btn-editorial"
+          :class="{ 'opacity-50 cursor-not-allowed': !file }"
           @click="startParsing"
         >
-          Add Participants
-        </UButton>
+          <span>Add Participants</span>
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
 
   <!-- Participants Step -->
-  <div
-    v-else-if="currentStep === 'participants'"
-    class="min-h-screen bg-[#020420] text-white"
-  >
-    <UContainer class="py-8">
+  <div v-else-if="currentStep === 'participants'" class="step-page-editorial">
+    <div class="container-editorial py-12">
       <div class="max-w-2xl mx-auto">
         <!-- Header -->
-        <div class="text-center mb-8">
-          <UButton
-            variant="link"
-            class="mb-4 text-green-400 hover:text-green-300 cursor-pointer"
-            @click="goToStep('upload')"
-          >
-            ← Back to Upload
-          </UButton>
-          <h1 class="text-4xl font-bold text-white mb-2">
-            Who's In The Squad?
-          </h1>
-          <p class="text-gray-400">
+        <div class="step-header-editorial">
+          <button class="back-link-editorial mb-6" @click="goToStep('upload')">
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Upload
+          </button>
+          <h1 class="step-title-editorial">Who's In The Squad?</h1>
+          <p class="step-subtitle-editorial">
             Add your friends while we parse your receipt in the background.
           </p>
         </div>
 
         <!-- Parsing Progress -->
-        <UCard
+        <div
           v-if="isParsingInBackground || parseProgress !== 'idle'"
-          class="mb-8 bg-[#090b29] text-white"
+          class="card-editorial mb-8"
         >
-          <template #header>
-            <div class="flex items-center space-x-2">
-              <Icon
-                name="i-heroicons-document-text"
+          <div class="flex items-center gap-3 mb-4">
+            <div
+              class="w-8 h-8 flex items-center justify-center"
+              :class="{
+                'text-[var(--color-accent)]':
+                  parseProgress === 'uploading' || parseProgress === 'parsing',
+                'text-green-600': parseProgress === 'complete',
+                'text-red-600': parseProgress === 'error'
+              }"
+            >
+              <svg
+                v-if="parseProgress === 'parsing'"
+                class="w-5 h-5 animate-spin"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              <svg
+                v-else-if="parseProgress === 'complete'"
                 class="w-5 h-5"
-                :class="{
-                  'text-blue-400':
-                    parseProgress === 'uploading' ||
-                    parseProgress === 'parsing',
-                  'text-green-400': parseProgress === 'complete',
-                  'text-red-400': parseProgress === 'error'
-                }"
-              />
-              <span class="font-medium">Receipt Processing</span>
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <svg
+                v-else-if="parseProgress === 'error'"
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <svg
+                v-else
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
             </div>
-          </template>
-
-          <div class="space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-sm">
+            <div>
+              <p class="font-medium text-[var(--color-text-primary)]">
+                Receipt Processing
+              </p>
+              <p class="text-caption">
                 {{
                   parseProgress === 'uploading'
                     ? 'Uploading receipt...'
                     : parseProgress === 'parsing'
-                    ? 'Analyzing receipt...'
+                    ? 'Analyzing receipt with AI...'
                     : parseProgress === 'complete'
-                    ? 'Receipt parsed!'
+                    ? 'Receipt parsed successfully!'
                     : parseProgress === 'error'
                     ? 'Failed to parse receipt'
                     : 'Ready to parse'
                 }}
-              </span>
-              <Icon
-                v-if="parseProgress === 'parsing'"
-                name="i-heroicons-arrow-path"
-                class="w-5 h-5 text-blue-400 animate-spin"
-              />
-              <Icon
-                v-if="parseProgress === 'complete'"
-                name="i-heroicons-check-circle"
-                class="w-5 h-5 text-green-400"
-              />
-              <Icon
-                v-else-if="parseProgress === 'error'"
-                name="i-heroicons-x-circle"
-                class="w-5 h-5 text-red-400"
-              />
-            </div>
-
-            <!-- Progress bar -->
-            <div class="w-full bg-gray-700 rounded-full h-2">
-              <div
-                class="h-2 rounded-full transition-all duration-300"
-                :class="{
-                  'bg-blue-400':
-                    parseProgress === 'uploading' ||
-                    parseProgress === 'parsing',
-                  'bg-green-400': parseProgress === 'complete',
-                  'bg-red-400': parseProgress === 'error'
-                }"
-                :style="{
-                  width:
-                    parseProgress === 'uploading'
-                      ? '30%'
-                      : parseProgress === 'parsing'
-                      ? '70%'
-                      : parseProgress === 'complete'
-                      ? '100%'
-                      : parseProgress === 'error'
-                      ? '100%'
-                      : '0%'
-                }"
-              />
+              </p>
             </div>
           </div>
-        </UCard>
+
+          <!-- Progress bar -->
+          <div class="progress-editorial">
+            <div
+              class="progress-editorial-bar"
+              :class="{ animate: parseProgress === 'parsing' }"
+              :style="{
+                width:
+                  parseProgress === 'uploading'
+                    ? '30%'
+                    : parseProgress === 'parsing'
+                    ? '70%'
+                    : parseProgress === 'complete' || parseProgress === 'error'
+                    ? '100%'
+                    : '0%',
+                backgroundColor:
+                  parseProgress === 'complete'
+                    ? '#16a34a'
+                    : parseProgress === 'error'
+                    ? '#dc2626'
+                    : 'var(--color-accent)'
+              }"
+            />
+          </div>
+        </div>
 
         <!-- Participants -->
-        <UCard class="bg-[#090b29] text-white">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <h3 class="text-lg font-semibold">The Squad</h3>
-              <UButton
-                size="sm"
-                color="primary"
-                class="cursor-pointer"
-                @click="addParticipant"
+        <div class="card-editorial">
+          <div
+            class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
+          >
+            <h3 class="font-serif text-xl">The Squad</h3>
+            <button
+              class="btn-editorial btn-editorial-sm"
+              @click="addParticipant"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <Icon name="i-heroicons-plus" class="w-4 h-4 mr-1" />
-                Add Friend
-              </UButton>
-            </div>
-          </template>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              <span>Add Friend</span>
+            </button>
+          </div>
 
           <div class="space-y-4">
             <div
               v-for="(participant, index) in participants"
               :key="index"
-              class="flex items-center space-x-3"
+              class="flex items-center gap-3"
             >
               <span
-                class="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-white font-bold"
+                class="avatar-editorial avatar-editorial-md"
                 :style="{ backgroundColor: participantColor(index) }"
               >
                 {{ (participant?.trim() || `P${index + 1}`)[0]?.toUpperCase() }}
               </span>
-              <UInput
+              <input
                 v-model="participants[index]"
+                type="text"
                 :placeholder="`Person ${index + 1}`"
-                class="flex-1"
-                :ui="{ base: 'bg-gray-800 text-white' }"
+                class="input-editorial flex-1"
               />
-              <UButton
+              <button
                 v-if="participants.length > 1"
-                color="neutral"
-                variant="ghost"
-                icon="i-heroicons-x-mark-20-solid"
-                class="cursor-pointer hover:text-red-400"
+                class="btn-editorial-ghost text-[var(--color-text-secondary)] hover:text-red-600"
                 @click="removeParticipant(index)"
-              />
+              >
+                <svg
+                  class="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
-        </UCard>
+        </div>
 
         <!-- Error Display -->
-        <UAlert
-          v-if="error"
-          color="error"
-          variant="soft"
-          :title="error"
-          class="mt-6"
-        />
+        <div v-if="error" class="alert-editorial alert-editorial-error mt-6">
+          {{ error }}
+        </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-center">
-          <UButton
-            size="lg"
-            color="primary"
-            class="mt-6 px-8 py-3 text-lg cursor-pointer"
+        <div class="flex justify-center mt-8">
+          <button
+            class="btn-editorial"
             :disabled="
               parseProgress === 'error' ||
               parseProgress === 'uploading' ||
               parseProgress === 'parsing'
             "
+            :class="{
+              'opacity-50 cursor-not-allowed':
+                parseProgress === 'error' ||
+                parseProgress === 'uploading' ||
+                parseProgress === 'parsing'
+            }"
             @click="proceedToAssign"
           >
-            Continue
-          </UButton>
+            <span>Continue</span>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </button>
         </div>
       </div>
-    </UContainer>
+    </div>
   </div>
 
   <!-- Review Receipt Step -->
-  <div
-    v-else-if="currentStep === 'review'"
-    class="min-h-screen bg-[#020420] text-white"
-  >
-    <UContainer class="py-8">
+  <div v-else-if="currentStep === 'review'" class="step-page-editorial">
+    <div class="container-editorial py-12">
       <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="text-center mb-8">
-          <UButton
-            variant="link"
-            class="mb-4 text-green-400 hover:text-green-300 cursor-pointer"
+        <div class="step-header-editorial">
+          <button
+            class="back-link-editorial mb-6"
             @click="goToStep('participants')"
           >
-            ← Back to Participants
-          </UButton>
-          <h1 class="text-4xl font-bold text-white mb-2">
-            Review Your Receipt
-          </h1>
-          <p class="text-gray-400">
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Participants
+          </button>
+          <h1 class="step-title-editorial">Review Your Receipt</h1>
+          <p class="step-subtitle-editorial">
             Double-check the details and make any adjustments before assigning
             items.
           </p>
         </div>
 
         <!-- Items Card -->
-        <UCard class="mb-6 bg-[#090b29] text-white">
-          <template #header>
-            <div class="flex justify-between items-center">
-              <h3 class="text-lg font-semibold">Receipt Items</h3>
-              <UButton
-                size="sm"
-                color="primary"
-                class="cursor-pointer"
-                @click="addNewItem"
+        <div class="card-editorial mb-8">
+          <div
+            class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
+          >
+            <h3 class="font-serif text-xl">Receipt Items</h3>
+            <button class="btn-editorial btn-editorial-sm" @click="addNewItem">
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
               >
-                <Icon name="i-heroicons-plus" class="w-4 h-4 mr-1" />
-                Add Item
-              </UButton>
-            </div>
-          </template>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                />
+              </svg>
+              <span>Add Item</span>
+            </button>
+          </div>
 
           <div class="space-y-4">
             <div
               v-for="(item, index) in receipt?.items || []"
               :key="index"
-              class="border border-gray-700 rounded-lg p-4"
+              class="border border-[var(--color-border)] p-4"
             >
               <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
                 <!-- Item Name -->
                 <div class="md:col-span-5">
-                  <label class="text-xs text-gray-400 mb-1 block"
-                    >Item Name</label
-                  >
-                  <UInput
-                    :model-value="item.name"
+                  <label class="label-editorial">Item Name</label>
+                  <input
+                    :value="item.name"
+                    type="text"
                     placeholder="Item name"
-                    class="w-full"
-                    :ui="{ base: 'bg-gray-800 text-white' }"
-                    @update:model-value="updateItemName(index, $event)"
+                    class="input-editorial"
+                    @input="
+                      updateItemName(
+                        index,
+                        ($event.target as HTMLInputElement).value
+                      )
+                    "
                   />
                 </div>
 
                 <!-- Quantity -->
                 <div class="md:col-span-2">
-                  <label class="text-xs text-gray-400 mb-1 block"
-                    >Quantity</label
-                  >
-                  <UInput
-                    :model-value="item.quantity"
+                  <label class="label-editorial">Quantity</label>
+                  <input
+                    :value="item.quantity"
                     type="number"
                     min="0.01"
                     step="0.01"
                     placeholder="Qty"
-                    class="w-full"
-                    :ui="{ base: 'bg-gray-800 text-white' }"
-                    @update:model-value="updateItemQuantity(index, $event)"
+                    class="input-editorial input-editorial-mono"
+                    @input="
+                      updateItemQuantity(
+                        index,
+                        Number(($event.target as HTMLInputElement).value)
+                      )
+                    "
                   />
                 </div>
 
                 <!-- Price -->
                 <div class="md:col-span-2">
-                  <label class="text-xs text-gray-400 mb-1 block">Price</label>
-                  <UInput
-                    :model-value="item.price"
+                  <label class="label-editorial">Price</label>
+                  <input
+                    :value="item.price"
                     type="number"
                     min="0"
                     step="0.01"
                     placeholder="Price"
-                    class="w-full"
-                    :ui="{ base: 'bg-gray-800 text-white' }"
-                    @update:model-value="updateItemPrice(index, $event)"
+                    class="input-editorial input-editorial-mono"
+                    @input="
+                      updateItemPrice(
+                        index,
+                        Number(($event.target as HTMLInputElement).value)
+                      )
+                    "
                   />
                 </div>
 
                 <!-- Total -->
                 <div class="md:col-span-2">
-                  <label class="text-xs text-gray-400 mb-1 block">Total</label>
-                  <div class="text-white font-semibold py-2">
+                  <label class="label-editorial">Total</label>
+                  <div
+                    class="font-mono font-medium text-[var(--color-text-primary)] py-2"
+                  >
                     {{ formatCurrency(item.quantity * item.price) }}
                   </div>
                 </div>
 
                 <!-- Delete Button -->
                 <div class="md:col-span-1 flex items-end justify-end">
-                  <UButton
+                  <button
                     v-if="(receipt?.items || []).length > 1"
-                    color="error"
-                    variant="ghost"
-                    icon="i-heroicons-trash"
-                    class="cursor-pointer"
-                    size="sm"
+                    class="btn-editorial-ghost text-[var(--color-text-secondary)] hover:text-red-600"
                     @click="removeItem(index)"
-                  />
+                  >
+                    <svg
+                      class="w-5 h-5"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                      />
+                    </svg>
+                  </button>
                 </div>
               </div>
             </div>
           </div>
-        </UCard>
+        </div>
 
         <!-- Summary Card -->
-        <UCard class="bg-[#090b29] text-white">
-          <template #header>
-            <h3 class="text-lg font-semibold">Summary</h3>
-          </template>
+        <div class="card-editorial">
+          <h3
+            class="font-serif text-xl mb-6 pb-4 border-b border-[var(--color-border)]"
+          >
+            Summary
+          </h3>
 
-          <div class="space-y-4">
+          <div>
             <!-- Subtotal (auto-calculated) -->
-            <div
-              class="flex justify-between items-center py-2 border-b border-gray-800"
-            >
-              <span class="text-gray-300">Subtotal:</span>
-              <span class="font-semibold text-lg">{{
-                formatCurrency(receiptSubtotal)
-              }}</span>
+            <div class="summary-row summary-row-divider">
+              <span class="summary-label">Subtotal</span>
+              <span class="summary-value font-mono">
+                {{ formatCurrency(receiptSubtotal) }}
+              </span>
             </div>
 
             <!-- Tax (editable) -->
-            <div
-              class="flex justify-between items-center py-2 border-b border-gray-800"
-            >
-              <span class="text-gray-300">Tax:</span>
+            <div class="summary-row summary-row-divider">
+              <span class="summary-label">Tax</span>
               <div class="w-32">
-                <UInput
-                  :model-value="receipt?.tax || 0"
+                <input
+                  :value="receipt?.tax || 0"
                   type="number"
                   min="0"
                   step="0.01"
                   placeholder="Tax"
-                  class="w-full"
-                  :ui="{ base: 'bg-gray-800 text-white' }"
-                  @update:model-value="updateTax($event)"
+                  class="input-editorial input-editorial-mono text-right"
+                  @input="
+                    updateTax(Number(($event.target as HTMLInputElement).value))
+                  "
                 />
               </div>
             </div>
 
             <!-- Total (auto-calculated) -->
-            <div class="flex justify-between items-center py-2">
-              <span class="text-gray-300 font-semibold">Total:</span>
-              <span class="font-bold text-2xl text-blue-400">{{
-                formatCurrency(receipt?.total || 0)
-              }}</span>
+            <div class="summary-row summary-row-total">
+              <span class="font-medium text-[var(--color-text-primary)]"
+                >Total</span
+              >
+              <span
+                class="font-mono font-bold text-2xl text-[var(--color-accent)]"
+              >
+                {{ formatCurrency(receipt?.total || 0) }}
+              </span>
             </div>
           </div>
-        </UCard>
+        </div>
 
         <!-- Error Display -->
-        <UAlert
-          v-if="error"
-          color="error"
-          variant="soft"
-          :title="error"
-          class="mt-6"
-        />
+        <div v-if="error" class="alert-editorial alert-editorial-error mt-6">
+          {{ error }}
+        </div>
 
         <!-- Action Buttons -->
         <div class="flex justify-center mt-8">
-          <UButton
-            size="lg"
-            color="primary"
-            class="px-8 py-3 text-lg cursor-pointer"
-            @click="proceedToAssignFromReview"
-          >
-            Continue to Assignment
-          </UButton>
+          <button class="btn-editorial" @click="proceedToAssignFromReview">
+            <span>Continue to Assignment</span>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M17 8l4 4m0 0l-4 4m4-4H3"
+              />
+            </svg>
+          </button>
         </div>
       </div>
-    </UContainer>
+    </div>
   </div>
 
   <!-- Assign Items Step -->
-  <div
-    v-else-if="currentStep === 'assign'"
-    class="min-h-screen bg-[#020420] text-white"
-  >
-    <UContainer class="py-8">
+  <div v-else-if="currentStep === 'assign'" class="step-page-editorial">
+    <div class="container-editorial py-12">
       <div class="max-w-4xl mx-auto">
         <!-- Header -->
-        <div class="text-center mb-8">
-          <UButton
-            variant="link"
-            class="mb-4 text-green-400 hover:text-green-300 cursor-pointer"
-            @click="goToStep('review')"
-          >
-            ← Back to Review
-          </UButton>
-          <h1 class="text-4xl font-bold text-white mb-2">Who Gets What?</h1>
-          <p class="text-gray-400">
+        <div class="step-header-editorial">
+          <button class="back-link-editorial mb-6" @click="goToStep('review')">
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M15 19l-7-7 7-7"
+              />
+            </svg>
+            Back to Review
+          </button>
+          <h1 class="step-title-editorial">Who Gets What?</h1>
+          <p class="step-subtitle-editorial">
             Assign items to your squad and we'll handle the math.
           </p>
         </div>
 
         <div class="space-y-8">
           <!-- Squad Selection -->
-          <UCard class="bg-[#090b29] text-white">
-            <template #header>
-              <h3 class="text-lg font-semibold">Select Squad Member</h3>
-              <p class="text-sm text-gray-400 mt-1">
+          <div class="card-editorial">
+            <div class="mb-4">
+              <h3 class="font-serif text-xl mb-1">Select Squad Member</h3>
+              <p class="text-caption">
                 Click a member, then click items to assign them
               </p>
-            </template>
+            </div>
 
-            <div class="grid gap-3">
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
               <div
                 v-for="(participant, index) in participants.filter((p) =>
                   p.trim()
                 )"
                 :key="index"
-                class="cursor-pointer transition-all duration-200 border-2 rounded-lg p-3 hover:border-blue-400"
+                class="card-editorial card-editorial-interactive p-4 text-center"
                 :class="[
                   selectedParticipantIndex === index
-                    ? 'border-blue-400 bg-blue-500/20'
-                    : 'border-gray-600 bg-gray-800/50'
+                    ? 'card-editorial-selected'
+                    : ''
                 ]"
                 @click="selectParticipant(index)"
               >
-                <div class="flex flex-col items-center space-y-2">
+                <div class="flex flex-col items-center gap-2">
                   <span
-                    class="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold"
+                    class="avatar-editorial avatar-editorial-lg"
                     :style="{ backgroundColor: participantColor(index) }"
                   >
                     {{ participant?.trim()?.[0]?.toUpperCase() || 'P' }}
                   </span>
-                  <span class="text-sm font-medium text-center">{{
-                    participant.trim()
-                  }}</span>
-                  <span class="text-xs font-semibold text-blue-400">
+                  <span
+                    class="text-sm font-medium text-[var(--color-text-primary)]"
+                  >
+                    {{ participant.trim() }}
+                  </span>
+                  <span
+                    class="font-mono text-xs font-semibold text-[var(--color-accent)]"
+                  >
                     {{ formatCurrency(participantTotals[index]?.total || 0) }}
                   </span>
                 </div>
@@ -1745,46 +1910,57 @@ const resetApp = () => {
 
             <div
               v-if="selectedParticipantIndex === null"
-              class="mt-4 text-center"
+              class="mt-6 text-center py-3 bg-[var(--color-bg)] border border-[var(--color-border)]"
             >
-              <p class="text-sm text-gray-400">
-                👆 Select a squad member to start assigning items
+              <p class="text-caption">
+                Select a squad member above to start assigning items
               </p>
             </div>
-            <div v-else class="mt-4 text-center">
-              <p class="text-sm text-green-400">
-                ✨ {{ participants[selectedParticipantIndex]?.trim() }} is
-                selected. Click items below to assign them!
+            <div
+              v-else
+              class="mt-6 text-center py-3 bg-[rgba(199,91,57,0.05)] border border-[var(--color-accent)]"
+            >
+              <p class="text-sm text-[var(--color-accent)]">
+                <strong>{{
+                  participants[selectedParticipantIndex]?.trim()
+                }}</strong>
+                is selected. Click items below to assign them!
               </p>
             </div>
-          </UCard>
+          </div>
 
           <!-- Receipt Items -->
-          <UCard class="bg-[#090b29] text-white">
-            <template #header>
-              <h3 class="text-lg font-semibold">The Goods</h3>
-            </template>
+          <div class="card-editorial">
+            <h3
+              class="font-serif text-xl mb-6 pb-4 border-b border-[var(--color-border)]"
+            >
+              The Goods
+            </h3>
 
             <div class="space-y-4">
               <div
                 v-for="(item, itemIndex) in receipt?.items || []"
                 :key="itemIndex"
-                class="border-2 rounded-lg p-3 sm:p-4 transition-all duration-200"
+                class="border p-4 transition-all duration-200"
                 :class="[
                   selectedParticipantIndex !== null
-                    ? 'border-gray-600'
-                    : 'border-gray-700 opacity-60'
+                    ? 'border-[var(--color-border)]'
+                    : 'border-[var(--color-border-light)] opacity-60'
                 ]"
               >
                 <div class="flex flex-col gap-4">
                   <!-- Item info -->
                   <div class="flex-1">
-                    <h4 class="font-medium">{{ item.name }}</h4>
-                    <p class="text-sm text-gray-400">
+                    <h4 class="font-medium text-[var(--color-text-primary)]">
+                      {{ item.name }}
+                    </h4>
+                    <p class="text-caption">
                       Qty: {{ item.quantity }} &times;
                       {{ formatCurrency(item.price) }}
                     </p>
-                    <div class="font-semibold text-lg mt-1">
+                    <div
+                      class="font-mono font-semibold text-lg mt-1 text-[var(--color-text-primary)]"
+                    >
                       {{ formatCurrency(item.quantity * item.price) }}
                     </div>
                   </div>
@@ -1796,16 +1972,21 @@ const resetApp = () => {
                         v-if="
                           (itemAssignments[itemIndex] || {})[pIndex] && p.trim()
                         "
-                        class="flex items-center gap-2 bg-gray-700/50 rounded-full px-3 py-1"
+                        class="flex items-center gap-2 bg-[var(--color-bg)] px-3 py-1 border border-[var(--color-border)]"
                       >
                         <span
-                          class="w-6 h-6 rounded-full flex items-center justify-center text-white font-bold text-xs"
+                          class="avatar-editorial avatar-editorial-sm"
                           :style="{ backgroundColor: participantColor(pIndex) }"
                         >
                           {{ p?.trim()?.[0]?.toUpperCase() || 'P' }}
                         </span>
-                        <span class="text-sm">{{ p.trim() }}</span>
-                        <span class="text-xs text-blue-400 font-semibold">
+                        <span
+                          class="text-sm text-[var(--color-text-primary)]"
+                          >{{ p.trim() }}</span
+                        >
+                        <span
+                          class="font-mono text-xs text-[var(--color-accent)] font-semibold"
+                        >
                           x{{ (itemAssignments[itemIndex] || {})[pIndex] }}
                         </span>
                       </div>
@@ -1814,7 +1995,7 @@ const resetApp = () => {
                       v-if="
                         !Object.keys(itemAssignments[itemIndex] || {}).length
                       "
-                      class="text-xs text-gray-500 px-3 py-1"
+                      class="text-caption px-3 py-1"
                     >
                       Not assigned yet
                     </div>
@@ -1823,7 +2004,7 @@ const resetApp = () => {
                   <!-- Selected participant controls -->
                   <div
                     v-if="selectedParticipantIndex !== null"
-                    class="border-t border-gray-700 pt-3"
+                    class="border-t border-[var(--color-border)] pt-4"
                   >
                     <div
                       v-if="
@@ -1831,51 +2012,68 @@ const resetApp = () => {
                           selectedParticipantIndex
                         ]
                       "
-                      class="flex items-center justify-between"
+                      class="flex items-center justify-between flex-wrap gap-3"
                     >
-                      <span class="text-sm text-gray-400">
+                      <span class="text-caption">
                         {{ participants[selectedParticipantIndex]?.trim() }}'s
                         quantity:
                       </span>
                       <div class="flex items-center gap-2">
-                        <UButton
-                          size="sm"
-                          color="neutral"
-                          variant="outline"
-                          icon="i-heroicons-minus"
-                          class="cursor-pointer"
-                          @click.stop="
-                            decreaseItemQuantity(
-                              itemIndex,
-                              selectedParticipantIndex
-                            )
-                          "
-                        />
-                        <span class="text-lg font-bold w-12 text-center">
-                          {{
-                            (itemAssignments[itemIndex] || {})[
-                              selectedParticipantIndex
-                            ]
-                          }}
-                        </span>
-                        <UButton
-                          size="sm"
-                          color="neutral"
-                          variant="outline"
-                          icon="i-heroicons-plus"
-                          class="cursor-pointer"
-                          @click.stop="
-                            increaseItemQuantity(
-                              itemIndex,
-                              selectedParticipantIndex
-                            )
-                          "
-                        />
-                        <UButton
-                          size="sm"
-                          color="error"
-                          variant="outline"
-                          class="cursor-pointer ml-2"
+                        <div class="qty-control-editorial">
+                          <button
+                            @click.stop="
+                              decreaseItemQuantity(
+                                itemIndex,
+                                selectedParticipantIndex
+                              )
+                            "
+                          >
+                            <svg
+                              class="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M20 12H4"
+                              />
+                            </svg>
+                          </button>
+                          <span>
+                            {{
+                              (itemAssignments[itemIndex] || {})[
+                                selectedParticipantIndex
+                              ]
+                            }}
+                          </span>
+                          <button
+                            @click.stop="
+                              increaseItemQuantity(
+                                itemIndex,
+                                selectedParticipantIndex
+                              )
+                            "
+                          >
+                            <svg
+                              class="w-4 h-4"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                            >
+                              <path
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                stroke-width="2"
+                                d="M12 4v16m8-8H4"
+                              />
+                            </svg>
+                          </button>
+                        </div>
+                        <button
+                          class="btn-editorial btn-editorial-sm btn-editorial-danger"
                           @click.stop="
                             removeAssignment(
                               itemIndex,
@@ -1883,247 +2081,315 @@ const resetApp = () => {
                             )
                           "
                         >
-                          Remove
-                        </UButton>
+                          <span>Remove</span>
+                        </button>
                       </div>
                     </div>
                     <div v-else>
-                      <UButton
-                        size="sm"
-                        color="primary"
-                        class="cursor-pointer w-full"
+                      <button
+                        class="btn-editorial btn-editorial-sm w-full"
                         @click="assignItemToSelected(itemIndex)"
                       >
-                        Assign to
-                        {{ participants[selectedParticipantIndex]?.trim() }}
-                      </UButton>
+                        <span
+                          >Assign to
+                          {{
+                            participants[selectedParticipantIndex]?.trim()
+                          }}</span
+                        >
+                      </button>
                     </div>
                   </div>
-                  <div v-else class="text-xs text-gray-500 text-center py-2">
+                  <div
+                    v-else
+                    class="text-caption text-center py-2 border-t border-[var(--color-border-light)]"
+                  >
                     Select a squad member above to assign this item
                   </div>
                 </div>
               </div>
             </div>
-          </UCard>
+          </div>
         </div>
 
         <!-- Total and Actions -->
-        <div class="mt-8 text-center">
-          <div class="mb-6 space-y-2">
-            <div class="flex justify-center items-center space-x-8 text-lg">
-              <div class="text-gray-300">
-                Subtotal:
-                <span class="font-bold text-white">{{
-                  formatCurrency(
-                    (receipt?.items || []).reduce(
-                      (sum, item) => sum + item.price * item.quantity,
-                      0
-                    )
-                  )
-                }}</span>
-              </div>
-              <div v-if="receipt?.tax && receipt.tax > 0" class="text-gray-300">
-                Tax:
-                <span class="font-bold text-orange-400">{{
-                  formatCurrency(receipt.tax)
-                }}</span>
-              </div>
-            </div>
-            <p class="text-lg text-gray-300">
-              Total:
-              <span class="font-bold text-2xl text-white">{{
-                formatCurrency(receipt?.total || 0)
-              }}</span>
-            </p>
-          </div>
-
-          <UAlert
-            v-if="error"
-            color="error"
-            variant="soft"
-            :title="error"
-            class="mb-6"
-          />
-
-          <UButton
-            size="lg"
-            color="primary"
-            class="px-8 py-3 text-lg cursor-pointer"
-            @click="calculateSplit"
-          >
-            Split It Up!
-          </UButton>
-        </div>
-      </div>
-    </UContainer>
-  </div>
-
-  <!-- Results Step -->
-  <div
-    v-else-if="currentStep === 'results'"
-    class="min-h-screen bg-[#020420] text-white"
-  >
-    <UContainer class="py-8">
-      <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="text-center mb-8">
-          <h1 class="text-4xl font-bold text-white mb-2">Bill Settled!</h1>
-          <p class="text-gray-400">The moment of truth: who pays what</p>
-        </div>
-
-        <!-- Summary -->
-        <UCard class="mb-8 bg-[#090b29] text-white">
-          <div class="text-center">
-            <div class="grid md:grid-cols-4 gap-4">
-              <div>
-                <p class="text-sm text-gray-400">Subtotal</p>
-                <p class="text-2xl font-bold">
-                  {{ formatCurrency(splitResults?.subtotal || 0) }}
-                </p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-400">Tax</p>
-                <p class="text-2xl font-bold text-orange-400">
-                  {{ formatCurrency(splitResults?.tax || 0) }}
-                </p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-400">Total</p>
-                <p class="text-2xl font-bold">
-                  {{ formatCurrency(splitResults?.originalTotal || 0) }}
-                </p>
-              </div>
-              <div>
-                <p class="text-sm text-gray-400">Split Accuracy</p>
+        <div class="mt-8">
+          <div class="card-editorial mb-8">
+            <div class="flex flex-wrap justify-center items-center gap-8">
+              <div class="text-center">
+                <p class="text-caption mb-1">Subtotal</p>
                 <p
-                  class="text-2xl font-bold"
-                  :class="
-                    Math.abs(
-                      (splitResults?.originalTotal || 0) -
-                        (splitResults?.splitTotal || 0)
-                    ) < 0.01
-                      ? 'text-green-400'
-                      : 'text-red-400'
-                  "
+                  class="font-mono font-bold text-xl text-[var(--color-text-primary)]"
                 >
                   {{
-                    Math.abs(
-                      (splitResults?.originalTotal || 0) -
-                        (splitResults?.splitTotal || 0)
-                    ) < 0.01
-                      ? '✓'
-                      : formatCurrency(
-                          Math.abs(
-                            (splitResults?.originalTotal || 0) -
-                              (splitResults?.splitTotal || 0)
-                          )
-                        ) + ' off'
+                    formatCurrency(
+                      (receipt?.items || []).reduce(
+                        (sum, item) => sum + item.price * item.quantity,
+                        0
+                      )
+                    )
                   }}
                 </p>
               </div>
+              <div v-if="receipt?.tax && receipt.tax > 0" class="text-center">
+                <p class="text-caption mb-1">Tax</p>
+                <p
+                  class="font-mono font-bold text-xl text-[var(--color-accent)]"
+                >
+                  {{ formatCurrency(receipt.tax) }}
+                </p>
+              </div>
+              <div class="text-center">
+                <p class="text-caption mb-1">Total</p>
+                <p
+                  class="font-mono font-bold text-2xl text-[var(--color-text-primary)]"
+                >
+                  {{ formatCurrency(receipt?.total || 0) }}
+                </p>
+              </div>
             </div>
           </div>
-        </UCard>
+
+          <div v-if="error" class="alert-editorial alert-editorial-error mb-6">
+            {{ error }}
+          </div>
+
+          <div class="text-center">
+            <button class="btn-editorial" @click="calculateSplit">
+              <span>Split It Up!</span>
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Step -->
+  <div v-else-if="currentStep === 'results'" class="step-page-editorial">
+    <div class="container-editorial py-12">
+      <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="step-header-editorial">
+          <div
+            class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-green-100 text-green-600 rounded-full"
+          >
+            <svg
+              class="w-8 h-8"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h1 class="step-title-editorial">Bill Settled!</h1>
+          <p class="step-subtitle-editorial">
+            The moment of truth: who pays what
+          </p>
+        </div>
+
+        <!-- Summary -->
+        <div class="card-editorial mb-8">
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            <div>
+              <p class="text-caption mb-1">Subtotal</p>
+              <p
+                class="font-mono text-xl font-bold text-[var(--color-text-primary)]"
+              >
+                {{ formatCurrency(splitResults?.subtotal || 0) }}
+              </p>
+            </div>
+            <div>
+              <p class="text-caption mb-1">Tax</p>
+              <p class="font-mono text-xl font-bold text-[var(--color-accent)]">
+                {{ formatCurrency(splitResults?.tax || 0) }}
+              </p>
+            </div>
+            <div>
+              <p class="text-caption mb-1">Total</p>
+              <p
+                class="font-mono text-xl font-bold text-[var(--color-text-primary)]"
+              >
+                {{ formatCurrency(splitResults?.originalTotal || 0) }}
+              </p>
+            </div>
+            <div>
+              <p class="text-caption mb-1">Accuracy</p>
+              <p
+                class="text-xl font-bold"
+                :class="
+                  Math.abs(
+                    (splitResults?.originalTotal || 0) -
+                      (splitResults?.splitTotal || 0)
+                  ) < 0.01
+                    ? 'text-green-600'
+                    : 'text-red-600'
+                "
+              >
+                {{
+                  Math.abs(
+                    (splitResults?.originalTotal || 0) -
+                      (splitResults?.splitTotal || 0)
+                  ) < 0.01
+                    ? '✓ Perfect'
+                    : formatCurrency(
+                        Math.abs(
+                          (splitResults?.originalTotal || 0) -
+                            (splitResults?.splitTotal || 0)
+                        )
+                      ) + ' off'
+                }}
+              </p>
+            </div>
+          </div>
+        </div>
 
         <!-- Individual Results -->
-        <div class="grid gap-6 mb-8">
-          <UCard
-            v-for="participant in splitResults?.participants || []"
+        <div class="space-y-6 mb-8">
+          <div
+            v-for="(participant, pIndex) in splitResults?.participants || []"
             :key="participant.name"
-            class="bg-[#090b29] text-white"
+            class="card-editorial"
           >
-            <template #header>
-              <div class="flex justify-between items-center">
-                <h3 class="text-lg font-semibold">{{ participant.name }}</h3>
-                <span class="text-2xl font-bold text-blue-400">
-                  {{ formatCurrency(participant.total) }}
+            <div
+              class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
+            >
+              <div class="flex items-center gap-3">
+                <span
+                  class="avatar-editorial avatar-editorial-lg"
+                  :style="{ backgroundColor: participantColor(pIndex) }"
+                >
+                  {{ participant.name?.[0]?.toUpperCase() || 'P' }}
                 </span>
+                <h3 class="font-serif text-xl">{{ participant.name }}</h3>
               </div>
-            </template>
+              <span
+                class="font-mono text-2xl font-bold text-[var(--color-accent)]"
+              >
+                {{ formatCurrency(participant.total) }}
+              </span>
+            </div>
 
-            <div class="space-y-2">
+            <div>
               <!-- Items breakdown -->
               <div
                 v-for="item in participant.items"
                 :key="item.name"
-                class="flex justify-between items-center py-1 border-b border-gray-800"
+                class="flex justify-between items-center py-2 border-b border-[var(--color-border-light)]"
               >
-                <span class="text-sm">
+                <span class="text-sm text-[var(--color-text-primary)]">
                   {{ item.name }}
-                  <span v-if="item.sharedWith > 1" class="text-gray-500">
+                  <span v-if="item.sharedWith > 1" class="text-caption">
                     (shared with {{ item.sharedWith - 1 }} other{{
                       item.sharedWith > 2 ? 's' : ''
                     }})
                   </span>
                 </span>
-                <span class="text-sm font-medium">{{
-                  formatCurrency(item.cost)
-                }}</span>
+                <span
+                  class="font-mono text-sm font-medium text-[var(--color-text-primary)]"
+                >
+                  {{ formatCurrency(item.cost) }}
+                </span>
               </div>
 
               <!-- Tax breakdown -->
               <div
                 v-if="participant.taxPortion > 0"
-                class="flex justify-between items-center py-1 border-b border-gray-800"
+                class="flex justify-between items-center py-2 border-b border-[var(--color-border-light)]"
               >
-                <span class="text-sm text-orange-400">
+                <span class="text-sm text-[var(--color-accent)]">
                   Tax (proportional share)
                 </span>
-                <span class="text-sm font-medium text-orange-400">{{
-                  formatCurrency(participant.taxPortion)
-                }}</span>
+                <span
+                  class="font-mono text-sm font-medium text-[var(--color-accent)]"
+                >
+                  {{ formatCurrency(participant.taxPortion) }}
+                </span>
               </div>
 
               <!-- Subtotal and total -->
-              <div class="pt-2 space-y-1">
-                <div
-                  class="flex justify-between items-center text-sm text-gray-400"
-                >
+              <div class="pt-4 space-y-2">
+                <div class="flex justify-between items-center text-caption">
                   <span>Items subtotal:</span>
-                  <span>{{ formatCurrency(participant.itemsTotal) }}</span>
+                  <span class="font-mono">{{
+                    formatCurrency(participant.itemsTotal)
+                  }}</span>
                 </div>
                 <div
                   v-if="participant.taxPortion > 0"
-                  class="flex justify-between items-center text-sm text-orange-400"
+                  class="flex justify-between items-center text-caption text-[var(--color-accent)]"
                 >
                   <span>Tax share:</span>
-                  <span>{{ formatCurrency(participant.taxPortion) }}</span>
-                </div>
-                <div
-                  class="flex justify-between items-center text-lg font-bold border-t border-gray-700 pt-1"
-                >
-                  <span>Total:</span>
-                  <span class="text-blue-400">{{
-                    formatCurrency(participant.total)
+                  <span class="font-mono">{{
+                    formatCurrency(participant.taxPortion)
                   }}</span>
+                </div>
+                <div class="summary-row summary-row-total">
+                  <span class="font-medium">Total</span>
+                  <span
+                    class="font-mono font-bold text-xl text-[var(--color-accent)]"
+                  >
+                    {{ formatCurrency(participant.total) }}
+                  </span>
                 </div>
               </div>
             </div>
-          </UCard>
+          </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="flex justify-center space-x-4">
-          <UButton
-            variant="outline"
-            color="primary"
-            size="lg"
-            class="cursor-pointer"
-            @click="goToStep('assign')"
-          >
-            Make Changes
-          </UButton>
-          <UButton
-            size="lg"
-            color="primary"
-            class="cursor-pointer"
-            @click="resetApp"
-          >
-            Split Another
-          </UButton>
+        <div class="flex flex-wrap justify-center gap-4">
+          <button class="btn-editorial-outline" @click="goToStep('assign')">
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+              />
+            </svg>
+            <span>Make Changes</span>
+          </button>
+          <button class="btn-editorial" @click="resetApp">
+            <span>Split Another Bill</span>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+          </button>
         </div>
       </div>
-    </UContainer>
+    </div>
   </div>
 </template>

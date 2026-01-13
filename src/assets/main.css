@@ -551,3 +551,502 @@ html {
   background-color: var(--color-accent);
   color: white;
 }
+
+/* ============================================
+   FORM ELEMENTS - Editorial Style
+   ============================================ */
+
+/* Input fields */
+.input-editorial {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 1rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.input-editorial:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(199, 91, 57, 0.1);
+}
+
+.input-editorial::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+}
+
+.input-editorial:disabled {
+  background-color: var(--color-bg);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* Number inputs with mono font */
+.input-editorial-mono {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+}
+
+/* Input label */
+.label-editorial {
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--color-text-secondary);
+  margin-bottom: 0.5rem;
+}
+
+/* ============================================
+   ALERT / MESSAGE STYLES
+   ============================================ */
+
+.alert-editorial {
+  padding: 1rem 1.25rem;
+  border-left: 3px solid;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+}
+
+.alert-editorial-error {
+  background-color: #fef2f2;
+  border-color: #dc2626;
+  color: #991b1b;
+}
+
+.alert-editorial-success {
+  background-color: #f0fdf4;
+  border-color: #16a34a;
+  color: #166534;
+}
+
+.alert-editorial-info {
+  background-color: #faf9f6;
+  border-color: var(--color-accent);
+  color: var(--color-text-primary);
+}
+
+/* ============================================
+   SELECT / DROPDOWN STYLES (USelectMenu Override)
+   ============================================ */
+
+/* Override Nuxt UI select menu for editorial theme */
+[data-headlessui-state] {
+  font-family: var(--font-sans) !important;
+}
+
+.select-editorial-wrapper [role="combobox"],
+.select-editorial-wrapper button {
+  background-color: var(--color-bg-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  font-family: var(--font-sans) !important;
+  color: var(--color-text-primary) !important;
+  transition: all var(--duration-fast) var(--ease-out-expo) !important;
+}
+
+.select-editorial-wrapper [role="combobox"]:focus,
+.select-editorial-wrapper button:focus {
+  border-color: var(--color-accent) !important;
+  box-shadow: 0 0 0 3px rgba(199, 91, 57, 0.1) !important;
+  outline: none !important;
+}
+
+/* Dropdown menu */
+.select-editorial-wrapper [role="listbox"] {
+  background-color: var(--color-bg-card) !important;
+  border: 1px solid var(--color-border) !important;
+  border-radius: 0 !important;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
+}
+
+.select-editorial-wrapper [role="option"] {
+  font-family: var(--font-sans) !important;
+  color: var(--color-text-primary) !important;
+  transition: background-color var(--duration-fast) !important;
+}
+
+.select-editorial-wrapper [role="option"]:hover,
+.select-editorial-wrapper [role="option"][data-highlighted] {
+  background-color: var(--color-bg) !important;
+}
+
+.select-editorial-wrapper [role="option"][data-selected] {
+  background-color: var(--color-accent) !important;
+  color: white !important;
+}
+
+/* ============================================
+   FILE UPLOAD ZONE
+   ============================================ */
+
+.upload-zone-editorial {
+  position: relative;
+  border: 2px dashed var(--color-border);
+  background-color: var(--color-bg-card);
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all var(--duration-normal) var(--ease-out-expo);
+}
+
+.upload-zone-editorial:hover {
+  border-color: var(--color-text-secondary);
+  background-color: var(--color-bg);
+}
+
+.upload-zone-editorial.drag-over {
+  border-color: var(--color-accent);
+  background-color: rgba(199, 91, 57, 0.05);
+}
+
+.upload-zone-editorial.has-file {
+  border-style: solid;
+  border-color: var(--color-accent);
+}
+
+/* ============================================
+   PROGRESS INDICATOR
+   ============================================ */
+
+.progress-editorial {
+  width: 100%;
+  height: 4px;
+  background-color: var(--color-border);
+  overflow: hidden;
+}
+
+.progress-editorial-bar {
+  height: 100%;
+  background-color: var(--color-accent);
+  transition: width var(--duration-normal) var(--ease-out-expo);
+}
+
+.progress-editorial-bar.animate {
+  animation: progressPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes progressPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+/* Step progress dots */
+.step-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.step-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--color-border);
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.step-dot.active {
+  background-color: var(--color-accent);
+  transform: scale(1.25);
+}
+
+.step-dot.completed {
+  background-color: var(--color-accent);
+}
+
+/* ============================================
+   PARTICIPANT AVATARS
+   ============================================ */
+
+.avatar-editorial {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  color: white;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.avatar-editorial-sm {
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 0.65rem;
+}
+
+.avatar-editorial-md {
+  width: 2rem;
+  height: 2rem;
+  font-size: 0.8rem;
+}
+
+.avatar-editorial-lg {
+  width: 2.5rem;
+  height: 2.5rem;
+  font-size: 1rem;
+}
+
+/* ============================================
+   BUTTON VARIANTS
+   ============================================ */
+
+.btn-editorial-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  gap: 0.5rem;
+}
+
+.btn-editorial-icon {
+  padding: 0.5rem;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+}
+
+.btn-editorial-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all var(--duration-fast) var(--ease-out-expo);
+}
+
+.btn-editorial-ghost:hover {
+  color: var(--color-text-primary);
+  background-color: var(--color-bg);
+}
+
+.btn-editorial-danger {
+  background-color: #dc2626;
+}
+
+.btn-editorial-danger::before {
+  background-color: #b91c1c;
+}
+
+.btn-editorial-danger:hover {
+  box-shadow: 0 10px 30px rgba(220, 38, 38, 0.3);
+}
+
+/* ============================================
+   BADGE STYLES
+   ============================================ */
+
+.badge-editorial {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0;
+}
+
+.badge-editorial-accent {
+  background-color: rgba(199, 91, 57, 0.1);
+  color: var(--color-accent);
+}
+
+.badge-editorial-muted {
+  background-color: var(--color-bg);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================
+   CARD VARIANTS
+   ============================================ */
+
+.card-editorial-interactive {
+  cursor: pointer;
+}
+
+.card-editorial-interactive:hover {
+  border-color: var(--color-accent);
+}
+
+.card-editorial-selected {
+  border-color: var(--color-accent);
+  background-color: rgba(199, 91, 57, 0.03);
+}
+
+.card-editorial-flat {
+  border: none;
+  box-shadow: none;
+  background-color: var(--color-bg);
+}
+
+.card-editorial-flat:hover {
+  transform: none;
+  box-shadow: none;
+}
+
+/* ============================================
+   ITEM ROW STYLES
+   ============================================ */
+
+.item-row-editorial {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 0;
+  border-bottom: 1px solid var(--color-border-light);
+  transition: background-color var(--duration-fast);
+}
+
+.item-row-editorial:last-child {
+  border-bottom: none;
+}
+
+.item-row-editorial:hover {
+  background-color: var(--color-bg);
+  margin: 0 -1rem;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* ============================================
+   QUANTITY CONTROLS
+   ============================================ */
+
+.qty-control-editorial {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border: 1px solid var(--color-border);
+  padding: 0.25rem;
+}
+
+.qty-control-editorial button {
+  width: 1.75rem;
+  height: 1.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--color-text-secondary);
+  transition: all var(--duration-fast);
+}
+
+.qty-control-editorial button:hover {
+  background-color: var(--color-bg);
+  color: var(--color-text-primary);
+}
+
+.qty-control-editorial span {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  min-width: 2rem;
+  text-align: center;
+}
+
+/* ============================================
+   SUMMARY / TOTALS
+   ============================================ */
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem 0;
+}
+
+.summary-row-divider {
+  border-top: 1px solid var(--color-border);
+}
+
+.summary-row-total {
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 2px solid var(--color-text-primary);
+}
+
+.summary-label {
+  font-family: var(--font-sans);
+  color: var(--color-text-secondary);
+}
+
+.summary-value {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  color: var(--color-text-primary);
+}
+
+.summary-value-accent {
+  color: var(--color-accent);
+  font-size: 1.25rem;
+}
+
+/* ============================================
+   BACK LINK
+   ============================================ */
+
+.back-link-editorial {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+  text-decoration: none;
+  cursor: pointer;
+  transition: color var(--duration-fast);
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.back-link-editorial:hover {
+  color: var(--color-accent);
+}
+
+/* ============================================
+   PAGE STEP CONTAINER
+   ============================================ */
+
+.step-page-editorial {
+  min-height: 100vh;
+  background-color: var(--color-bg);
+  font-family: var(--font-sans);
+  color: var(--color-text-primary);
+}
+
+.step-header-editorial {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.step-title-editorial {
+  font-family: var(--font-serif);
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.step-subtitle-editorial {
+  font-size: 1rem;
+  color: var(--color-text-secondary);
+}
