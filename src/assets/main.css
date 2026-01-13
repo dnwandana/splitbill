@@ -1,5 +1,4 @@
 @import 'tailwindcss';
-@import '@nuxt/ui';
 
 /* ============================================
    EDITORIAL DESIGN SYSTEM - SplitBill
@@ -634,53 +633,39 @@ html {
 }
 
 /* ============================================
-   SELECT / DROPDOWN STYLES (USelectMenu Override)
+   SELECT / DROPDOWN STYLES (Native Select)
    ============================================ */
 
-/* Override Nuxt UI select menu for editorial theme */
-[data-headlessui-state] {
-  font-family: var(--font-sans) !important;
+.select-editorial {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b6b6b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  transition: all var(--duration-fast) var(--ease-out-expo);
 }
 
-.select-editorial-wrapper [role="combobox"],
-.select-editorial-wrapper button {
-  background-color: var(--color-bg-card) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  font-family: var(--font-sans) !important;
-  color: var(--color-text-primary) !important;
-  transition: all var(--duration-fast) var(--ease-out-expo) !important;
+.select-editorial:hover {
+  border-color: var(--color-text-secondary);
 }
 
-.select-editorial-wrapper [role="combobox"]:focus,
-.select-editorial-wrapper button:focus {
-  border-color: var(--color-accent) !important;
-  box-shadow: 0 0 0 3px rgba(199, 91, 57, 0.1) !important;
-  outline: none !important;
+.select-editorial:focus {
+  outline: none;
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 3px rgba(199, 91, 57, 0.1);
 }
 
-/* Dropdown menu */
-.select-editorial-wrapper [role="listbox"] {
-  background-color: var(--color-bg-card) !important;
-  border: 1px solid var(--color-border) !important;
-  border-radius: 0 !important;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1) !important;
-}
-
-.select-editorial-wrapper [role="option"] {
-  font-family: var(--font-sans) !important;
-  color: var(--color-text-primary) !important;
-  transition: background-color var(--duration-fast) !important;
-}
-
-.select-editorial-wrapper [role="option"]:hover,
-.select-editorial-wrapper [role="option"][data-highlighted] {
-  background-color: var(--color-bg) !important;
-}
-
-.select-editorial-wrapper [role="option"][data-selected] {
-  background-color: var(--color-accent) !important;
-  color: white !important;
+.select-editorial option {
+  background-color: var(--color-bg-card);
+  color: var(--color-text-primary);
+  padding: 0.5rem;
 }
 
 /* ============================================
@@ -734,7 +719,8 @@ html {
 }
 
 @keyframes progressPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {

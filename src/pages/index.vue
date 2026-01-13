@@ -110,8 +110,6 @@ const currencyItems: CurrencyOption[] = [
   { label: 'Vietnamese Dong (VND)', value: 'VND' }
 ]
 
-const selectedCurrencyOption = ref<CurrencyOption | undefined>(undefined)
-
 // Scroll reveal observer
 const setupScrollReveal = () => {
   const observer = new IntersectionObserver(
@@ -139,11 +137,10 @@ onMounted(() => {
   userLocale.value = locale
 
   // Initialize with detected currency or fallback to USD
-  const initialOption =
-    currencyItems.find((c) => c.value === currency) ||
-    currencyItems.find((c) => c.value === 'USD')
-  selectedCurrencyOption.value = initialOption
-  userCurrency.value = initialOption?.value || currency || 'USD'
+  const detectedCurrency = currencyItems.find((c) => c.value === currency)
+    ? currency
+    : 'USD'
+  userCurrency.value = detectedCurrency
 
   // Track page view
   analytics.trackStep('landing')
@@ -154,11 +151,9 @@ onMounted(() => {
   })
 })
 
-watch(selectedCurrencyOption, (option) => {
-  if (option) {
-    userCurrency.value = option.value
-    analytics.trackCurrencyChange(option.value)
-  }
+// Track currency changes
+watch(userCurrency, (newCurrency) => {
+  analytics.trackCurrencyChange(newCurrency)
 })
 
 // Participant colors for avatars
@@ -677,16 +672,19 @@ const resetApp = () => {
               >SplitBill</span
             >
           </div>
-          <div class="flex items-center gap-6 select-editorial-wrapper">
-            <USelectMenu
-              v-model="selectedCurrencyOption"
-              :items="currencyItems"
-              option-attribute="label"
-              value-attribute="value"
-              placeholder="Currency"
-              searchable
-              class="w-28 md:w-40 animate-fade-in delay-1"
-            />
+          <div class="flex items-center gap-6">
+            <select
+              v-model="userCurrency"
+              class="select-editorial w-28 md:w-40 animate-fade-in delay-1"
+            >
+              <option
+                v-for="item in currencyItems"
+                :key="item.value"
+                :value="item.value"
+              >
+                {{ item.label }}
+              </option>
+            </select>
           </div>
         </div>
       </div>
