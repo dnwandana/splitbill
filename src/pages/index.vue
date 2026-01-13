@@ -1347,242 +1347,66 @@ const resetApp = () => {
   </div>
 
   <!-- Participants Step -->
-  <div v-else-if="currentStep === 'participants'" class="step-page-editorial">
-    <div class="container-editorial py-12">
-      <div class="max-w-2xl mx-auto">
-        <!-- Header -->
-        <div class="step-header-editorial">
-          <button class="back-link-editorial mb-6" @click="goToStep('upload')">
-            <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Upload
-          </button>
-          <h1 class="step-title-editorial">Who's In The Squad?</h1>
-          <p class="step-subtitle-editorial">
-            Add your friends while we parse your receipt in the background.
-          </p>
-        </div>
-
-        <!-- Parsing Progress -->
-        <div
-          v-if="isParsingInBackground || parseProgress !== 'idle'"
-          class="card-editorial mb-8"
-        >
-          <div class="flex items-center gap-3 mb-4">
-            <div
-              class="w-8 h-8 flex items-center justify-center"
-              :class="{
-                'text-[var(--color-accent)]':
-                  parseProgress === 'uploading' || parseProgress === 'parsing',
-                'text-green-600': parseProgress === 'complete',
-                'text-red-600': parseProgress === 'error'
-              }"
-            >
-              <svg
-                v-if="parseProgress === 'parsing'"
-                class="w-5 h-5 animate-spin"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-              <svg
-                v-else-if="parseProgress === 'complete'"
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <svg
-                v-else-if="parseProgress === 'error'"
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <svg
-                v-else
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-            </div>
-            <div>
-              <p class="font-medium text-[var(--color-text-primary)]">
-                Receipt Processing
-              </p>
-              <p class="text-caption">
-                {{
-                  parseProgress === 'uploading'
-                    ? 'Uploading receipt...'
-                    : parseProgress === 'parsing'
-                    ? 'Analyzing receipt with AI...'
-                    : parseProgress === 'complete'
-                    ? 'Receipt parsed successfully!'
-                    : parseProgress === 'error'
-                    ? 'Failed to parse receipt'
-                    : 'Ready to parse'
-                }}
-              </p>
-            </div>
-          </div>
-
-          <!-- Progress bar -->
-          <div class="progress-editorial">
-            <div
-              class="progress-editorial-bar"
-              :class="{ animate: parseProgress === 'parsing' }"
-              :style="{
-                width:
-                  parseProgress === 'uploading'
-                    ? '30%'
-                    : parseProgress === 'parsing'
-                    ? '70%'
-                    : parseProgress === 'complete' || parseProgress === 'error'
-                    ? '100%'
-                    : '0%',
-                backgroundColor:
-                  parseProgress === 'complete'
-                    ? '#16a34a'
-                    : parseProgress === 'error'
-                    ? '#dc2626'
-                    : 'var(--color-accent)'
-              }"
+  <div
+    v-else-if="currentStep === 'participants'"
+    class="step-page-editorial flex flex-col items-center p-4 py-12"
+  >
+    <div class="w-full max-w-2xl">
+      <!-- Header -->
+      <div class="step-header-editorial">
+        <button class="back-link-editorial mb-6" @click="goToStep('upload')">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
             />
-          </div>
-        </div>
+          </svg>
+          Back to Upload
+        </button>
+        <h1 class="step-title-editorial">Who's In The Squad?</h1>
+        <p class="step-subtitle-editorial">
+          Add your friends while we parse your receipt in the background.
+        </p>
+      </div>
 
-        <!-- Participants -->
-        <div class="card-editorial">
+      <!-- Parsing Progress -->
+      <div
+        v-if="isParsingInBackground || parseProgress !== 'idle'"
+        class="card-editorial mb-8"
+      >
+        <div class="flex items-center gap-3 mb-4">
           <div
-            class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
-          >
-            <h3 class="font-serif text-xl">The Squad</h3>
-            <button
-              class="btn-editorial btn-editorial-sm"
-              @click="addParticipant"
-            >
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span>Add Friend</span>
-            </button>
-          </div>
-
-          <div class="space-y-4">
-            <div
-              v-for="(participant, index) in participants"
-              :key="index"
-              class="flex items-center gap-3"
-            >
-              <span
-                class="avatar-editorial avatar-editorial-md"
-                :style="{ backgroundColor: participantColor(index) }"
-              >
-                {{ (participant?.trim() || `P${index + 1}`)[0]?.toUpperCase() }}
-              </span>
-              <input
-                v-model="participants[index]"
-                type="text"
-                :placeholder="`Person ${index + 1}`"
-                class="input-editorial flex-1"
-              />
-              <button
-                v-if="participants.length > 1"
-                class="btn-editorial-ghost text-[var(--color-text-secondary)] hover:text-red-600"
-                @click="removeParticipant(index)"
-              >
-                <svg
-                  class="w-5 h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-        </div>
-
-        <!-- Error Display -->
-        <div v-if="error" class="alert-editorial alert-editorial-error mt-6">
-          {{ error }}
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex justify-center mt-8">
-          <button
-            class="btn-editorial"
-            :disabled="
-              parseProgress === 'error' ||
-              parseProgress === 'uploading' ||
-              parseProgress === 'parsing'
-            "
+            class="w-8 h-8 flex items-center justify-center"
             :class="{
-              'opacity-50 cursor-not-allowed':
-                parseProgress === 'error' ||
-                parseProgress === 'uploading' ||
-                parseProgress === 'parsing'
+              'text-[var(--color-accent)]':
+                parseProgress === 'uploading' || parseProgress === 'parsing',
+              'text-green-600': parseProgress === 'complete',
+              'text-red-600': parseProgress === 'error'
             }"
-            @click="proceedToAssign"
           >
-            <span>Continue</span>
             <svg
+              v-if="parseProgress === 'parsing'"
+              class="w-5 h-5 animate-spin"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
+            </svg>
+            <svg
+              v-else-if="parseProgress === 'complete'"
               class="w-5 h-5"
               fill="none"
               stroke="currentColor"
@@ -1592,229 +1416,11 @@ const resetApp = () => {
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Review Receipt Step -->
-  <div v-else-if="currentStep === 'review'" class="step-page-editorial">
-    <div class="container-editorial py-12">
-      <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="step-header-editorial">
-          <button
-            class="back-link-editorial mb-6"
-            @click="goToStep('participants')"
-          >
             <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Participants
-          </button>
-          <h1 class="step-title-editorial">Review Your Receipt</h1>
-          <p class="step-subtitle-editorial">
-            Double-check the details and make any adjustments before assigning
-            items.
-          </p>
-        </div>
-
-        <!-- Items Card -->
-        <div class="card-editorial mb-8">
-          <div
-            class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
-          >
-            <h3 class="font-serif text-xl">Receipt Items</h3>
-            <button class="btn-editorial btn-editorial-sm" @click="addNewItem">
-              <svg
-                class="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 4v16m8-8H4"
-                />
-              </svg>
-              <span>Add Item</span>
-            </button>
-          </div>
-
-          <div class="space-y-4">
-            <div
-              v-for="(item, index) in receipt?.items || []"
-              :key="index"
-              class="border border-[var(--color-border)] p-4"
-            >
-              <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-                <!-- Item Name -->
-                <div class="md:col-span-5">
-                  <label class="label-editorial">Item Name</label>
-                  <input
-                    :value="item.name"
-                    type="text"
-                    placeholder="Item name"
-                    class="input-editorial"
-                    @input="
-                      updateItemName(
-                        index,
-                        ($event.target as HTMLInputElement).value
-                      )
-                    "
-                  />
-                </div>
-
-                <!-- Quantity -->
-                <div class="md:col-span-2">
-                  <label class="label-editorial">Quantity</label>
-                  <input
-                    :value="item.quantity"
-                    type="number"
-                    min="0.01"
-                    step="0.01"
-                    placeholder="Qty"
-                    class="input-editorial input-editorial-mono"
-                    @input="
-                      updateItemQuantity(
-                        index,
-                        Number(($event.target as HTMLInputElement).value)
-                      )
-                    "
-                  />
-                </div>
-
-                <!-- Price -->
-                <div class="md:col-span-2">
-                  <label class="label-editorial">Price</label>
-                  <input
-                    :value="item.price"
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    placeholder="Price"
-                    class="input-editorial input-editorial-mono"
-                    @input="
-                      updateItemPrice(
-                        index,
-                        Number(($event.target as HTMLInputElement).value)
-                      )
-                    "
-                  />
-                </div>
-
-                <!-- Total -->
-                <div class="md:col-span-2">
-                  <label class="label-editorial">Total</label>
-                  <div
-                    class="font-mono font-medium text-[var(--color-text-primary)] py-2"
-                  >
-                    {{ formatCurrency(item.quantity * item.price) }}
-                  </div>
-                </div>
-
-                <!-- Delete Button -->
-                <div class="md:col-span-1 flex items-end justify-end">
-                  <button
-                    v-if="(receipt?.items || []).length > 1"
-                    class="btn-editorial-ghost text-[var(--color-text-secondary)] hover:text-red-600"
-                    @click="removeItem(index)"
-                  >
-                    <svg
-                      class="w-5 h-5"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-                      />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Summary Card -->
-        <div class="card-editorial">
-          <h3
-            class="font-serif text-xl mb-6 pb-4 border-b border-[var(--color-border)]"
-          >
-            Summary
-          </h3>
-
-          <div>
-            <!-- Subtotal (auto-calculated) -->
-            <div class="summary-row summary-row-divider">
-              <span class="summary-label">Subtotal</span>
-              <span class="summary-value font-mono">
-                {{ formatCurrency(receiptSubtotal) }}
-              </span>
-            </div>
-
-            <!-- Tax (editable) -->
-            <div class="summary-row summary-row-divider">
-              <span class="summary-label">Tax</span>
-              <div class="w-32">
-                <input
-                  :value="receipt?.tax || 0"
-                  type="number"
-                  min="0"
-                  step="0.01"
-                  placeholder="Tax"
-                  class="input-editorial input-editorial-mono text-right"
-                  @input="
-                    updateTax(Number(($event.target as HTMLInputElement).value))
-                  "
-                />
-              </div>
-            </div>
-
-            <!-- Total (auto-calculated) -->
-            <div class="summary-row summary-row-total">
-              <span class="font-medium text-[var(--color-text-primary)]"
-                >Total</span
-              >
-              <span
-                class="font-mono font-bold text-2xl text-[var(--color-accent)]"
-              >
-                {{ formatCurrency(receipt?.total || 0) }}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <!-- Error Display -->
-        <div v-if="error" class="alert-editorial alert-editorial-error mt-6">
-          {{ error }}
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex justify-center mt-8">
-          <button class="btn-editorial" @click="proceedToAssignFromReview">
-            <span>Continue to Assignment</span>
-            <svg
+              v-else-if="parseProgress === 'error'"
               class="w-5 h-5"
               fill="none"
               stroke="currentColor"
@@ -1824,556 +1430,81 @@ const resetApp = () => {
                 stroke-linecap="round"
                 stroke-linejoin="round"
                 stroke-width="2"
-                d="M17 8l4 4m0 0l-4 4m4-4H3"
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Assign Items Step -->
-  <div v-else-if="currentStep === 'assign'" class="step-page-editorial">
-    <div class="container-editorial py-12">
-      <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="step-header-editorial">
-          <button class="back-link-editorial mb-6" @click="goToStep('review')">
             <svg
-              class="w-4 h-4"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-            Back to Review
-          </button>
-          <h1 class="step-title-editorial">Who Gets What?</h1>
-          <p class="step-subtitle-editorial">
-            Assign items to your squad and we'll handle the math.
-          </p>
-        </div>
-
-        <div class="space-y-8">
-          <!-- Squad Selection -->
-          <div class="card-editorial">
-            <div class="mb-4">
-              <h3 class="font-serif text-xl mb-1">Select Squad Member</h3>
-              <p class="text-caption">
-                Click a member, then click items to assign them
-              </p>
-            </div>
-
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-              <div
-                v-for="(participant, index) in participants.filter((p) =>
-                  p.trim()
-                )"
-                :key="index"
-                class="card-editorial card-editorial-interactive p-4 text-center"
-                :class="[
-                  selectedParticipantIndex === index
-                    ? 'card-editorial-selected'
-                    : ''
-                ]"
-                @click="selectParticipant(index)"
-              >
-                <div class="flex flex-col items-center gap-2">
-                  <span
-                    class="avatar-editorial avatar-editorial-lg"
-                    :style="{ backgroundColor: participantColor(index) }"
-                  >
-                    {{ participant?.trim()?.[0]?.toUpperCase() || 'P' }}
-                  </span>
-                  <span
-                    class="text-sm font-medium text-[var(--color-text-primary)]"
-                  >
-                    {{ participant.trim() }}
-                  </span>
-                  <span
-                    class="font-mono text-xs font-semibold text-[var(--color-accent)]"
-                  >
-                    {{ formatCurrency(participantTotals[index]?.total || 0) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div
-              v-if="selectedParticipantIndex === null"
-              class="mt-6 text-center py-3 bg-[var(--color-bg)] border border-[var(--color-border)]"
-            >
-              <p class="text-caption">
-                Select a squad member above to start assigning items
-              </p>
-            </div>
-            <div
               v-else
-              class="mt-6 text-center py-3 bg-[rgba(199,91,57,0.05)] border border-[var(--color-accent)]"
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
             >
-              <p class="text-sm text-[var(--color-accent)]">
-                <strong>{{
-                  participants[selectedParticipantIndex]?.trim()
-                }}</strong>
-                is selected. Click items below to assign them!
-              </p>
-            </div>
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
+            </svg>
           </div>
-
-          <!-- Receipt Items -->
-          <div class="card-editorial">
-            <h3
-              class="font-serif text-xl mb-6 pb-4 border-b border-[var(--color-border)]"
-            >
-              The Goods
-            </h3>
-
-            <div class="space-y-4">
-              <div
-                v-for="(item, itemIndex) in receipt?.items || []"
-                :key="itemIndex"
-                class="border p-4 transition-all duration-200"
-                :class="[
-                  selectedParticipantIndex !== null
-                    ? 'border-[var(--color-border)]'
-                    : 'border-[var(--color-border-light)] opacity-60'
-                ]"
-              >
-                <div class="flex flex-col gap-4">
-                  <!-- Item info -->
-                  <div class="flex-1">
-                    <h4 class="font-medium text-[var(--color-text-primary)]">
-                      {{ item.name }}
-                    </h4>
-                    <p class="text-caption">
-                      Qty: {{ item.quantity }} &times;
-                      {{ formatCurrency(item.price) }}
-                    </p>
-                    <div
-                      class="font-mono font-semibold text-lg mt-1 text-[var(--color-text-primary)]"
-                    >
-                      {{ formatCurrency(item.quantity * item.price) }}
-                    </div>
-                  </div>
-
-                  <!-- Assigned participants with quantities -->
-                  <div class="flex flex-wrap gap-2">
-                    <template v-for="(p, pIndex) in participants" :key="pIndex">
-                      <div
-                        v-if="
-                          (itemAssignments[itemIndex] || {})[pIndex] && p.trim()
-                        "
-                        class="flex items-center gap-2 bg-[var(--color-bg)] px-3 py-1 border border-[var(--color-border)]"
-                      >
-                        <span
-                          class="avatar-editorial avatar-editorial-sm"
-                          :style="{ backgroundColor: participantColor(pIndex) }"
-                        >
-                          {{ p?.trim()?.[0]?.toUpperCase() || 'P' }}
-                        </span>
-                        <span
-                          class="text-sm text-[var(--color-text-primary)]"
-                          >{{ p.trim() }}</span
-                        >
-                        <span
-                          class="font-mono text-xs text-[var(--color-accent)] font-semibold"
-                        >
-                          x{{ (itemAssignments[itemIndex] || {})[pIndex] }}
-                        </span>
-                      </div>
-                    </template>
-                    <div
-                      v-if="
-                        !Object.keys(itemAssignments[itemIndex] || {}).length
-                      "
-                      class="text-caption px-3 py-1"
-                    >
-                      Not assigned yet
-                    </div>
-                  </div>
-
-                  <!-- Selected participant controls -->
-                  <div
-                    v-if="selectedParticipantIndex !== null"
-                    class="border-t border-[var(--color-border)] pt-4"
-                  >
-                    <div
-                      v-if="
-                        (itemAssignments[itemIndex] || {})[
-                          selectedParticipantIndex
-                        ]
-                      "
-                      class="flex items-center justify-between flex-wrap gap-3"
-                    >
-                      <span class="text-caption">
-                        {{ participants[selectedParticipantIndex]?.trim() }}'s
-                        quantity:
-                      </span>
-                      <div class="flex items-center gap-2">
-                        <div class="qty-control-editorial">
-                          <button
-                            @click.stop="
-                              decreaseItemQuantity(
-                                itemIndex,
-                                selectedParticipantIndex
-                              )
-                            "
-                          >
-                            <svg
-                              class="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M20 12H4"
-                              />
-                            </svg>
-                          </button>
-                          <span>
-                            {{
-                              (itemAssignments[itemIndex] || {})[
-                                selectedParticipantIndex
-                              ]
-                            }}
-                          </span>
-                          <button
-                            @click.stop="
-                              increaseItemQuantity(
-                                itemIndex,
-                                selectedParticipantIndex
-                              )
-                            "
-                          >
-                            <svg
-                              class="w-4 h-4"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M12 4v16m8-8H4"
-                              />
-                            </svg>
-                          </button>
-                        </div>
-                        <button
-                          class="btn-editorial btn-editorial-sm btn-editorial-danger"
-                          @click.stop="
-                            removeAssignment(
-                              itemIndex,
-                              selectedParticipantIndex
-                            )
-                          "
-                        >
-                          <span>Remove</span>
-                        </button>
-                      </div>
-                    </div>
-                    <div v-else>
-                      <button
-                        class="btn-editorial btn-editorial-sm w-full"
-                        @click="assignItemToSelected(itemIndex)"
-                      >
-                        <span
-                          >Assign to
-                          {{
-                            participants[selectedParticipantIndex]?.trim()
-                          }}</span
-                        >
-                      </button>
-                    </div>
-                  </div>
-                  <div
-                    v-else
-                    class="text-caption text-center py-2 border-t border-[var(--color-border-light)]"
-                  >
-                    Select a squad member above to assign this item
-                  </div>
-                </div>
-              </div>
-            </div>
+          <div>
+            <p class="font-medium text-[var(--color-text-primary)]">
+              Receipt Processing
+            </p>
+            <p class="text-caption">
+              {{
+                parseProgress === 'uploading'
+                  ? 'Uploading receipt...'
+                  : parseProgress === 'parsing'
+                  ? 'Analyzing receipt with AI...'
+                  : parseProgress === 'complete'
+                  ? 'Receipt parsed successfully!'
+                  : parseProgress === 'error'
+                  ? 'Failed to parse receipt'
+                  : 'Ready to parse'
+              }}
+            </p>
           </div>
         </div>
 
-        <!-- Total and Actions -->
-        <div class="mt-8">
-          <div class="card-editorial mb-8">
-            <div class="flex flex-wrap justify-center items-center gap-8">
-              <div class="text-center">
-                <p class="text-caption mb-1">Subtotal</p>
-                <p
-                  class="font-mono font-bold text-xl text-[var(--color-text-primary)]"
-                >
-                  {{
-                    formatCurrency(
-                      (receipt?.items || []).reduce(
-                        (sum, item) => sum + item.price * item.quantity,
-                        0
-                      )
-                    )
-                  }}
-                </p>
-              </div>
-              <div v-if="receipt?.tax && receipt.tax > 0" class="text-center">
-                <p class="text-caption mb-1">Tax</p>
-                <p
-                  class="font-mono font-bold text-xl text-[var(--color-accent)]"
-                >
-                  {{ formatCurrency(receipt.tax) }}
-                </p>
-              </div>
-              <div class="text-center">
-                <p class="text-caption mb-1">Total</p>
-                <p
-                  class="font-mono font-bold text-2xl text-[var(--color-text-primary)]"
-                >
-                  {{ formatCurrency(receipt?.total || 0) }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div v-if="error" class="alert-editorial alert-editorial-error mb-6">
-            {{ error }}
-          </div>
-
-          <div class="text-center">
-            <button class="btn-editorial" @click="calculateSplit">
-              <span>Split It Up!</span>
-              <svg
-                class="w-5 h-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-            </button>
-          </div>
+        <!-- Progress bar -->
+        <div class="progress-editorial">
+          <div
+            class="progress-editorial-bar"
+            :class="{ animate: parseProgress === 'parsing' }"
+            :style="{
+              width:
+                parseProgress === 'uploading'
+                  ? '30%'
+                  : parseProgress === 'parsing'
+                  ? '70%'
+                  : parseProgress === 'complete' || parseProgress === 'error'
+                  ? '100%'
+                  : '0%',
+              backgroundColor:
+                parseProgress === 'complete'
+                  ? '#16a34a'
+                  : parseProgress === 'error'
+                  ? '#dc2626'
+                  : 'var(--color-accent)'
+            }"
+          />
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- Results Step -->
-  <div v-else-if="currentStep === 'results'" class="step-page-editorial">
-    <div class="container-editorial py-12">
-      <div class="max-w-4xl mx-auto">
-        <!-- Header -->
-        <div class="step-header-editorial">
-          <div
-            class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-green-100 text-green-600 rounded-full"
+      <!-- Participants -->
+      <div class="card-editorial">
+        <div
+          class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
+        >
+          <h3 class="font-serif text-xl">The Squad</h3>
+          <button
+            class="btn-editorial btn-editorial-sm"
+            @click="addParticipant"
           >
             <svg
-              class="w-8 h-8"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
-          </div>
-          <h1 class="step-title-editorial">Bill Settled!</h1>
-          <p class="step-subtitle-editorial">
-            The moment of truth: who pays what
-          </p>
-        </div>
-
-        <!-- Summary -->
-        <div class="card-editorial mb-8">
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <p class="text-caption mb-1">Subtotal</p>
-              <p
-                class="font-mono text-xl font-bold text-[var(--color-text-primary)]"
-              >
-                {{ formatCurrency(splitResults?.subtotal || 0) }}
-              </p>
-            </div>
-            <div>
-              <p class="text-caption mb-1">Tax</p>
-              <p class="font-mono text-xl font-bold text-[var(--color-accent)]">
-                {{ formatCurrency(splitResults?.tax || 0) }}
-              </p>
-            </div>
-            <div>
-              <p class="text-caption mb-1">Total</p>
-              <p
-                class="font-mono text-xl font-bold text-[var(--color-text-primary)]"
-              >
-                {{ formatCurrency(splitResults?.originalTotal || 0) }}
-              </p>
-            </div>
-            <div>
-              <p class="text-caption mb-1">Accuracy</p>
-              <p
-                class="text-xl font-bold"
-                :class="
-                  Math.abs(
-                    (splitResults?.originalTotal || 0) -
-                      (splitResults?.splitTotal || 0)
-                  ) < 0.01
-                    ? 'text-green-600'
-                    : 'text-red-600'
-                "
-              >
-                {{
-                  Math.abs(
-                    (splitResults?.originalTotal || 0) -
-                      (splitResults?.splitTotal || 0)
-                  ) < 0.01
-                    ? '✓ Perfect'
-                    : formatCurrency(
-                        Math.abs(
-                          (splitResults?.originalTotal || 0) -
-                            (splitResults?.splitTotal || 0)
-                        )
-                      ) + ' off'
-                }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Individual Results -->
-        <div class="space-y-6 mb-8">
-          <div
-            v-for="(participant, pIndex) in splitResults?.participants || []"
-            :key="participant.name"
-            class="card-editorial"
-          >
-            <div
-              class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
-            >
-              <div class="flex items-center gap-3">
-                <span
-                  class="avatar-editorial avatar-editorial-lg"
-                  :style="{ backgroundColor: participantColor(pIndex) }"
-                >
-                  {{ participant.name?.[0]?.toUpperCase() || 'P' }}
-                </span>
-                <h3 class="font-serif text-xl">{{ participant.name }}</h3>
-              </div>
-              <span
-                class="font-mono text-2xl font-bold text-[var(--color-accent)]"
-              >
-                {{ formatCurrency(participant.total) }}
-              </span>
-            </div>
-
-            <div>
-              <!-- Items breakdown -->
-              <div
-                v-for="item in participant.items"
-                :key="item.name"
-                class="flex justify-between items-center py-2 border-b border-[var(--color-border-light)]"
-              >
-                <span class="text-sm text-[var(--color-text-primary)]">
-                  {{ item.name }}
-                  <span v-if="item.sharedWith > 1" class="text-caption">
-                    (shared with {{ item.sharedWith - 1 }} other{{
-                      item.sharedWith > 2 ? 's' : ''
-                    }})
-                  </span>
-                </span>
-                <span
-                  class="font-mono text-sm font-medium text-[var(--color-text-primary)]"
-                >
-                  {{ formatCurrency(item.cost) }}
-                </span>
-              </div>
-
-              <!-- Tax breakdown -->
-              <div
-                v-if="participant.taxPortion > 0"
-                class="flex justify-between items-center py-2 border-b border-[var(--color-border-light)]"
-              >
-                <span class="text-sm text-[var(--color-accent)]">
-                  Tax (proportional share)
-                </span>
-                <span
-                  class="font-mono text-sm font-medium text-[var(--color-accent)]"
-                >
-                  {{ formatCurrency(participant.taxPortion) }}
-                </span>
-              </div>
-
-              <!-- Subtotal and total -->
-              <div class="pt-4 space-y-2">
-                <div class="flex justify-between items-center text-caption">
-                  <span>Items subtotal:</span>
-                  <span class="font-mono">{{
-                    formatCurrency(participant.itemsTotal)
-                  }}</span>
-                </div>
-                <div
-                  v-if="participant.taxPortion > 0"
-                  class="flex justify-between items-center text-caption text-[var(--color-accent)]"
-                >
-                  <span>Tax share:</span>
-                  <span class="font-mono">{{
-                    formatCurrency(participant.taxPortion)
-                  }}</span>
-                </div>
-                <div class="summary-row summary-row-total">
-                  <span class="font-medium">Total</span>
-                  <span
-                    class="font-mono font-bold text-xl text-[var(--color-accent)]"
-                  >
-                    {{ formatCurrency(participant.total) }}
-                  </span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="flex flex-wrap justify-center gap-4">
-          <button class="btn-editorial-outline" @click="goToStep('assign')">
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-              />
-            </svg>
-            <span>Make Changes</span>
-          </button>
-          <button class="btn-editorial" @click="resetApp">
-            <span>Split Another Bill</span>
-            <svg
-              class="w-5 h-5"
+              class="w-4 h-4"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -2385,8 +1516,873 @@ const resetApp = () => {
                 d="M12 4v16m8-8H4"
               />
             </svg>
+            <span>Add Friend</span>
           </button>
         </div>
+
+        <div class="space-y-4">
+          <div
+            v-for="(participant, index) in participants"
+            :key="index"
+            class="flex items-center gap-3"
+          >
+            <span
+              class="avatar-editorial avatar-editorial-md"
+              :style="{ backgroundColor: participantColor(index) }"
+            >
+              {{ (participant?.trim() || `P${index + 1}`)[0]?.toUpperCase() }}
+            </span>
+            <input
+              v-model="participants[index]"
+              type="text"
+              :placeholder="`Person ${index + 1}`"
+              class="input-editorial flex-1"
+            />
+            <button
+              v-if="participants.length > 1"
+              class="btn-editorial-ghost text-[var(--color-text-secondary)] hover:text-red-600"
+              @click="removeParticipant(index)"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Display -->
+      <div v-if="error" class="alert-editorial alert-editorial-error mt-6">
+        {{ error }}
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-center mt-8">
+        <button
+          class="btn-editorial"
+          :disabled="
+            parseProgress === 'error' ||
+            parseProgress === 'uploading' ||
+            parseProgress === 'parsing'
+          "
+          :class="{
+            'opacity-50 cursor-not-allowed':
+              parseProgress === 'error' ||
+              parseProgress === 'uploading' ||
+              parseProgress === 'parsing'
+          }"
+          @click="proceedToAssign"
+        >
+          <span>Continue</span>
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Receipt Step -->
+  <div
+    v-else-if="currentStep === 'review'"
+    class="step-page-editorial flex flex-col items-center p-4 py-12"
+  >
+    <div class="w-full max-w-4xl">
+      <!-- Header -->
+      <div class="step-header-editorial">
+        <button
+          class="back-link-editorial mb-6"
+          @click="goToStep('participants')"
+        >
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Participants
+        </button>
+        <h1 class="step-title-editorial">Review Your Receipt</h1>
+        <p class="step-subtitle-editorial">
+          Double-check the details and make any adjustments before assigning
+          items.
+        </p>
+      </div>
+
+      <!-- Items Card -->
+      <div class="card-editorial mb-8">
+        <div
+          class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
+        >
+          <h3 class="font-serif text-xl">Receipt Items</h3>
+          <button class="btn-editorial btn-editorial-sm" @click="addNewItem">
+            <svg
+              class="w-4 h-4"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 4v16m8-8H4"
+              />
+            </svg>
+            <span>Add Item</span>
+          </button>
+        </div>
+
+        <div class="space-y-4">
+          <div
+            v-for="(item, index) in receipt?.items || []"
+            :key="index"
+            class="border border-[var(--color-border)] p-4"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+              <!-- Item Name -->
+              <div class="md:col-span-5">
+                <label class="label-editorial">Item Name</label>
+                <input
+                  :value="item.name"
+                  type="text"
+                  placeholder="Item name"
+                  class="input-editorial"
+                  @input="
+                    updateItemName(
+                      index,
+                      ($event.target as HTMLInputElement).value
+                    )
+                  "
+                />
+              </div>
+
+              <!-- Quantity -->
+              <div class="md:col-span-2">
+                <label class="label-editorial">Quantity</label>
+                <input
+                  :value="item.quantity"
+                  type="number"
+                  min="0.01"
+                  step="0.01"
+                  placeholder="Qty"
+                  class="input-editorial input-editorial-mono"
+                  @input="
+                    updateItemQuantity(
+                      index,
+                      Number(($event.target as HTMLInputElement).value)
+                    )
+                  "
+                />
+              </div>
+
+              <!-- Price -->
+              <div class="md:col-span-2">
+                <label class="label-editorial">Price</label>
+                <input
+                  :value="item.price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  placeholder="Price"
+                  class="input-editorial input-editorial-mono"
+                  @input="
+                    updateItemPrice(
+                      index,
+                      Number(($event.target as HTMLInputElement).value)
+                    )
+                  "
+                />
+              </div>
+
+              <!-- Total -->
+              <div class="md:col-span-2">
+                <label class="label-editorial">Total</label>
+                <div
+                  class="font-mono font-medium text-[var(--color-text-primary)] py-2"
+                >
+                  {{ formatCurrency(item.quantity * item.price) }}
+                </div>
+              </div>
+
+              <!-- Delete Button -->
+              <div class="md:col-span-1 flex items-end justify-end">
+                <button
+                  v-if="(receipt?.items || []).length > 1"
+                  class="btn-editorial-ghost text-[var(--color-text-secondary)] hover:text-red-600"
+                  @click="removeItem(index)"
+                >
+                  <svg
+                    class="w-5 h-5"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Summary Card -->
+      <div class="card-editorial">
+        <h3
+          class="font-serif text-xl mb-6 pb-4 border-b border-[var(--color-border)]"
+        >
+          Summary
+        </h3>
+
+        <div>
+          <!-- Subtotal (auto-calculated) -->
+          <div class="summary-row summary-row-divider">
+            <span class="summary-label">Subtotal</span>
+            <span class="summary-value font-mono">
+              {{ formatCurrency(receiptSubtotal) }}
+            </span>
+          </div>
+
+          <!-- Tax (editable) -->
+          <div class="summary-row summary-row-divider">
+            <span class="summary-label">Tax</span>
+            <div class="w-32">
+              <input
+                :value="receipt?.tax || 0"
+                type="number"
+                min="0"
+                step="0.01"
+                placeholder="Tax"
+                class="input-editorial input-editorial-mono text-right"
+                @input="
+                  updateTax(Number(($event.target as HTMLInputElement).value))
+                "
+              />
+            </div>
+          </div>
+
+          <!-- Total (auto-calculated) -->
+          <div class="summary-row summary-row-total">
+            <span class="font-medium text-[var(--color-text-primary)]"
+              >Total</span
+            >
+            <span
+              class="font-mono font-bold text-2xl text-[var(--color-accent)]"
+            >
+              {{ formatCurrency(receipt?.total || 0) }}
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error Display -->
+      <div v-if="error" class="alert-editorial alert-editorial-error mt-6">
+        {{ error }}
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex justify-center mt-8">
+        <button class="btn-editorial" @click="proceedToAssignFromReview">
+          <span>Continue to Assignment</span>
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M17 8l4 4m0 0l-4 4m4-4H3"
+            />
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assign Items Step -->
+  <div
+    v-else-if="currentStep === 'assign'"
+    class="step-page-editorial flex flex-col items-center p-4 py-12"
+  >
+    <div class="w-full max-w-4xl">
+      <!-- Header -->
+      <div class="step-header-editorial">
+        <button class="back-link-editorial mb-6" @click="goToStep('review')">
+          <svg
+            class="w-4 h-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M15 19l-7-7 7-7"
+            />
+          </svg>
+          Back to Review
+        </button>
+        <h1 class="step-title-editorial">Who Gets What?</h1>
+        <p class="step-subtitle-editorial">
+          Assign items to your squad and we'll handle the math.
+        </p>
+      </div>
+
+      <div class="space-y-8">
+        <!-- Squad Selection -->
+        <div class="card-editorial">
+          <div class="mb-4">
+            <h3 class="font-serif text-xl mb-1">Select Squad Member</h3>
+            <p class="text-caption">
+              Click a member, then click items to assign them
+            </p>
+          </div>
+
+          <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+            <div
+              v-for="(participant, index) in participants.filter((p) =>
+                p.trim()
+              )"
+              :key="index"
+              class="card-editorial card-editorial-interactive p-4 text-center"
+              :class="[
+                selectedParticipantIndex === index
+                  ? 'card-editorial-selected'
+                  : ''
+              ]"
+              @click="selectParticipant(index)"
+            >
+              <div class="flex flex-col items-center gap-2">
+                <span
+                  class="avatar-editorial avatar-editorial-lg"
+                  :style="{ backgroundColor: participantColor(index) }"
+                >
+                  {{ participant?.trim()?.[0]?.toUpperCase() || 'P' }}
+                </span>
+                <span
+                  class="text-sm font-medium text-[var(--color-text-primary)]"
+                >
+                  {{ participant.trim() }}
+                </span>
+                <span
+                  class="font-mono text-xs font-semibold text-[var(--color-accent)]"
+                >
+                  {{ formatCurrency(participantTotals[index]?.total || 0) }}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div
+            v-if="selectedParticipantIndex === null"
+            class="mt-6 text-center py-3 bg-[var(--color-bg)] border border-[var(--color-border)]"
+          >
+            <p class="text-caption">
+              Select a squad member above to start assigning items
+            </p>
+          </div>
+          <div
+            v-else
+            class="mt-6 text-center py-3 bg-[rgba(199,91,57,0.05)] border border-[var(--color-accent)]"
+          >
+            <p class="text-sm text-[var(--color-accent)]">
+              <strong>{{
+                participants[selectedParticipantIndex]?.trim()
+              }}</strong>
+              is selected. Click items below to assign them!
+            </p>
+          </div>
+        </div>
+
+        <!-- Receipt Items -->
+        <div class="card-editorial">
+          <h3
+            class="font-serif text-xl mb-6 pb-4 border-b border-[var(--color-border)]"
+          >
+            The Goods
+          </h3>
+
+          <div class="space-y-4">
+            <div
+              v-for="(item, itemIndex) in receipt?.items || []"
+              :key="itemIndex"
+              class="border p-4 transition-all duration-200"
+              :class="[
+                selectedParticipantIndex !== null
+                  ? 'border-[var(--color-border)]'
+                  : 'border-[var(--color-border-light)] opacity-60'
+              ]"
+            >
+              <div class="flex flex-col gap-4">
+                <!-- Item info -->
+                <div class="flex-1">
+                  <h4 class="font-medium text-[var(--color-text-primary)]">
+                    {{ item.name }}
+                  </h4>
+                  <p class="text-caption">
+                    Qty: {{ item.quantity }} &times;
+                    {{ formatCurrency(item.price) }}
+                  </p>
+                  <div
+                    class="font-mono font-semibold text-lg mt-1 text-[var(--color-text-primary)]"
+                  >
+                    {{ formatCurrency(item.quantity * item.price) }}
+                  </div>
+                </div>
+
+                <!-- Assigned participants with quantities -->
+                <div class="flex flex-wrap gap-2">
+                  <template v-for="(p, pIndex) in participants" :key="pIndex">
+                    <div
+                      v-if="
+                        (itemAssignments[itemIndex] || {})[pIndex] && p.trim()
+                      "
+                      class="flex items-center gap-2 bg-[var(--color-bg)] px-3 py-1 border border-[var(--color-border)]"
+                    >
+                      <span
+                        class="avatar-editorial avatar-editorial-sm"
+                        :style="{ backgroundColor: participantColor(pIndex) }"
+                      >
+                        {{ p?.trim()?.[0]?.toUpperCase() || 'P' }}
+                      </span>
+                      <span class="text-sm text-[var(--color-text-primary)]">{{
+                        p.trim()
+                      }}</span>
+                      <span
+                        class="font-mono text-xs text-[var(--color-accent)] font-semibold"
+                      >
+                        x{{ (itemAssignments[itemIndex] || {})[pIndex] }}
+                      </span>
+                    </div>
+                  </template>
+                  <div
+                    v-if="!Object.keys(itemAssignments[itemIndex] || {}).length"
+                    class="text-caption px-3 py-1"
+                  >
+                    Not assigned yet
+                  </div>
+                </div>
+
+                <!-- Selected participant controls -->
+                <div
+                  v-if="selectedParticipantIndex !== null"
+                  class="border-t border-[var(--color-border)] pt-4"
+                >
+                  <div
+                    v-if="
+                      (itemAssignments[itemIndex] || {})[
+                        selectedParticipantIndex
+                      ]
+                    "
+                    class="flex items-center justify-between flex-wrap gap-3"
+                  >
+                    <span class="text-caption">
+                      {{ participants[selectedParticipantIndex]?.trim() }}'s
+                      quantity:
+                    </span>
+                    <div class="flex items-center gap-2">
+                      <div class="qty-control-editorial">
+                        <button
+                          @click.stop="
+                            decreaseItemQuantity(
+                              itemIndex,
+                              selectedParticipantIndex
+                            )
+                          "
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M20 12H4"
+                            />
+                          </svg>
+                        </button>
+                        <span>
+                          {{
+                            (itemAssignments[itemIndex] || {})[
+                              selectedParticipantIndex
+                            ]
+                          }}
+                        </span>
+                        <button
+                          @click.stop="
+                            increaseItemQuantity(
+                              itemIndex,
+                              selectedParticipantIndex
+                            )
+                          "
+                        >
+                          <svg
+                            class="w-4 h-4"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                          >
+                            <path
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M12 4v16m8-8H4"
+                            />
+                          </svg>
+                        </button>
+                      </div>
+                      <button
+                        class="btn-editorial btn-editorial-sm btn-editorial-danger"
+                        @click.stop="
+                          removeAssignment(itemIndex, selectedParticipantIndex)
+                        "
+                      >
+                        <span>Remove</span>
+                      </button>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <button
+                      class="btn-editorial btn-editorial-sm w-full"
+                      @click="assignItemToSelected(itemIndex)"
+                    >
+                      <span
+                        >Assign to
+                        {{
+                          participants[selectedParticipantIndex]?.trim()
+                        }}</span
+                      >
+                    </button>
+                  </div>
+                </div>
+                <div
+                  v-else
+                  class="text-caption text-center py-2 border-t border-[var(--color-border-light)]"
+                >
+                  Select a squad member above to assign this item
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total and Actions -->
+      <div class="mt-8">
+        <div class="card-editorial mb-8">
+          <div class="flex flex-wrap justify-center items-center gap-8">
+            <div class="text-center">
+              <p class="text-caption mb-1">Subtotal</p>
+              <p
+                class="font-mono font-bold text-xl text-[var(--color-text-primary)]"
+              >
+                {{
+                  formatCurrency(
+                    (receipt?.items || []).reduce(
+                      (sum, item) => sum + item.price * item.quantity,
+                      0
+                    )
+                  )
+                }}
+              </p>
+            </div>
+            <div v-if="receipt?.tax && receipt.tax > 0" class="text-center">
+              <p class="text-caption mb-1">Tax</p>
+              <p class="font-mono font-bold text-xl text-[var(--color-accent)]">
+                {{ formatCurrency(receipt.tax) }}
+              </p>
+            </div>
+            <div class="text-center">
+              <p class="text-caption mb-1">Total</p>
+              <p
+                class="font-mono font-bold text-2xl text-[var(--color-text-primary)]"
+              >
+                {{ formatCurrency(receipt?.total || 0) }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div v-if="error" class="alert-editorial alert-editorial-error mb-6">
+          {{ error }}
+        </div>
+
+        <div class="text-center">
+          <button class="btn-editorial" @click="calculateSplit">
+            <span>Split It Up!</span>
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Results Step -->
+  <div
+    v-else-if="currentStep === 'results'"
+    class="step-page-editorial flex flex-col items-center p-4 py-12"
+  >
+    <div class="w-full max-w-4xl">
+      <!-- Header -->
+      <div class="step-header-editorial">
+        <div
+          class="w-16 h-16 mx-auto mb-6 flex items-center justify-center bg-green-100 text-green-600 rounded-full"
+        >
+          <svg
+            class="w-8 h-8"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M5 13l4 4L19 7"
+            />
+          </svg>
+        </div>
+        <h1 class="step-title-editorial">Bill Settled!</h1>
+        <p class="step-subtitle-editorial">
+          The moment of truth: who pays what
+        </p>
+      </div>
+
+      <!-- Summary -->
+      <div class="card-editorial mb-8">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+          <div>
+            <p class="text-caption mb-1">Subtotal</p>
+            <p
+              class="font-mono text-xl font-bold text-[var(--color-text-primary)]"
+            >
+              {{ formatCurrency(splitResults?.subtotal || 0) }}
+            </p>
+          </div>
+          <div>
+            <p class="text-caption mb-1">Tax</p>
+            <p class="font-mono text-xl font-bold text-[var(--color-accent)]">
+              {{ formatCurrency(splitResults?.tax || 0) }}
+            </p>
+          </div>
+          <div>
+            <p class="text-caption mb-1">Total</p>
+            <p
+              class="font-mono text-xl font-bold text-[var(--color-text-primary)]"
+            >
+              {{ formatCurrency(splitResults?.originalTotal || 0) }}
+            </p>
+          </div>
+          <div>
+            <p class="text-caption mb-1">Accuracy</p>
+            <p
+              class="text-xl font-bold"
+              :class="
+                Math.abs(
+                  (splitResults?.originalTotal || 0) -
+                    (splitResults?.splitTotal || 0)
+                ) < 0.01
+                  ? 'text-green-600'
+                  : 'text-red-600'
+              "
+            >
+              {{
+                Math.abs(
+                  (splitResults?.originalTotal || 0) -
+                    (splitResults?.splitTotal || 0)
+                ) < 0.01
+                  ? '✓ Perfect'
+                  : formatCurrency(
+                      Math.abs(
+                        (splitResults?.originalTotal || 0) -
+                          (splitResults?.splitTotal || 0)
+                      )
+                    ) + ' off'
+              }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Individual Results -->
+      <div class="space-y-6 mb-8">
+        <div
+          v-for="(participant, pIndex) in splitResults?.participants || []"
+          :key="participant.name"
+          class="card-editorial"
+        >
+          <div
+            class="flex justify-between items-center mb-6 pb-4 border-b border-[var(--color-border)]"
+          >
+            <div class="flex items-center gap-3">
+              <span
+                class="avatar-editorial avatar-editorial-lg"
+                :style="{ backgroundColor: participantColor(pIndex) }"
+              >
+                {{ participant.name?.[0]?.toUpperCase() || 'P' }}
+              </span>
+              <h3 class="font-serif text-xl">{{ participant.name }}</h3>
+            </div>
+            <span
+              class="font-mono text-2xl font-bold text-[var(--color-accent)]"
+            >
+              {{ formatCurrency(participant.total) }}
+            </span>
+          </div>
+
+          <div>
+            <!-- Items breakdown -->
+            <div
+              v-for="item in participant.items"
+              :key="item.name"
+              class="flex justify-between items-center py-2 border-b border-[var(--color-border-light)]"
+            >
+              <span class="text-sm text-[var(--color-text-primary)]">
+                {{ item.name }}
+                <span v-if="item.sharedWith > 1" class="text-caption">
+                  (shared with {{ item.sharedWith - 1 }} other{{
+                    item.sharedWith > 2 ? 's' : ''
+                  }})
+                </span>
+              </span>
+              <span
+                class="font-mono text-sm font-medium text-[var(--color-text-primary)]"
+              >
+                {{ formatCurrency(item.cost) }}
+              </span>
+            </div>
+
+            <!-- Tax breakdown -->
+            <div
+              v-if="participant.taxPortion > 0"
+              class="flex justify-between items-center py-2 border-b border-[var(--color-border-light)]"
+            >
+              <span class="text-sm text-[var(--color-accent)]">
+                Tax (proportional share)
+              </span>
+              <span
+                class="font-mono text-sm font-medium text-[var(--color-accent)]"
+              >
+                {{ formatCurrency(participant.taxPortion) }}
+              </span>
+            </div>
+
+            <!-- Subtotal and total -->
+            <div class="pt-4 space-y-2">
+              <div class="flex justify-between items-center text-caption">
+                <span>Items subtotal:</span>
+                <span class="font-mono">{{
+                  formatCurrency(participant.itemsTotal)
+                }}</span>
+              </div>
+              <div
+                v-if="participant.taxPortion > 0"
+                class="flex justify-between items-center text-caption text-[var(--color-accent)]"
+              >
+                <span>Tax share:</span>
+                <span class="font-mono">{{
+                  formatCurrency(participant.taxPortion)
+                }}</span>
+              </div>
+              <div class="summary-row summary-row-total">
+                <span class="font-medium">Total</span>
+                <span
+                  class="font-mono font-bold text-xl text-[var(--color-accent)]"
+                >
+                  {{ formatCurrency(participant.total) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap justify-center gap-4">
+        <button class="btn-editorial-outline" @click="goToStep('assign')">
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+            />
+          </svg>
+          <span>Make Changes</span>
+        </button>
+        <button class="btn-editorial" @click="resetApp">
+          <span>Split Another Bill</span>
+          <svg
+            class="w-5 h-5"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M12 4v16m8-8H4"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   </div>
