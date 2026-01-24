@@ -1,13 +1,21 @@
 services:
   splitbill:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: node:24-alpine
+    working_dir: /app
     ports:
       - '3000:3000'
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - COMPLETION_MODEL=${COMPLETION_MODEL}
       - UMAMI_WEBSITE_ID=${UMAMI_WEBSITE_ID}
+      - HOST=0.0.0.0
+      - PORT=3000
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    command: npm run dev
     restart: unless-stopped
+
+volumes:
+  node_modules:
