@@ -1288,7 +1288,7 @@ const resetApp = () => {
         <div class="space-y-4">
           <div v-for="(item, index) in receipt?.items || []" :key="index"
             class="border border-[var(--color-border)] p-4">
-            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
               <!-- Item Name -->
               <div class="md:col-span-5">
                 <label class="label-editorial">Item Name</label>
@@ -1462,8 +1462,9 @@ const resetApp = () => {
               <strong>{{
                 participants[selectedParticipantIndex]?.trim()
               }}</strong>
-              is selected. Click items below to assign them!
+              is selected.
             </p>
+            <p class="text-sm text-[var(--color-accent)]">Click items below to assign them!</p>
           </div>
         </div>
 
