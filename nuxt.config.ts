@@ -18,7 +18,7 @@ export default defineNuxtConfig({
         {
           rel: 'preconnect',
           href: 'https://fonts.gstatic.com',
-          crossorigin: ''
+          crossorigin: 'anonymous'
         },
         {
           rel: 'stylesheet',
@@ -33,7 +33,7 @@ export default defineNuxtConfig({
         {
           defer: true,
           src: 'https://cloud.umami.is/script.js',
-          'data-website-id': process.env.UMAMI_WEBSITE_ID || ''
+          'data-website-id': import.meta.env.UMAMI_WEBSITE_ID
         }
       ]
     }
