@@ -1,17 +1,6 @@
 import { H3Error } from 'h3'
 import { z } from 'zod'
-
-interface ReceiptItem {
-  name: string
-  quantity: number
-  price: number
-}
-
-interface Receipt {
-  items: ReceiptItem[]
-  tax: number
-  total: number
-}
+import { parseReceiptResponse } from '../../utils/receipt'
 
 // validation schema for form data
 const receiptFileSchema = z.object({
@@ -54,8 +43,9 @@ export default defineEventHandler(async (event) => {
     // validate the receipt file
     const validation = receiptFileSchema.safeParse(receiptFile)
     if (!validation.success) {
-      console.log('validation error', validation.error.issues)
-      const errorMessage = validation.error.issues[0].message
+      if (import.meta.dev)
+        console.log('validation error', validation.error.issues)
+      const errorMessage = validation.error.issues[0]?.message ?? 'Invalid file'
       throw createError({
         statusCode: 400,
         statusMessage: 'Bad Request',
@@ -94,6 +84,7 @@ export default defineEventHandler(async (event) => {
           'X-Title': 'splitbill.wandana.dev'
         },
         method: 'POST',
+        signal: AbortSignal.timeout(30_000),
         body: JSON.stringify({
           model: process.env.COMPLETION_MODEL,
           messages: [
@@ -168,9 +159,44 @@ export default defineEventHandler(async (event) => {
     )
 
     // parse the completion response
+    if (!response.ok) {
+      const status = response.status
+      const message =
+        status === 401 || status === 403
+          ? 'Receipt service authentication error'
+          : status === 402 || status === 429
+            ? 'Receipt service is temporarily unavailable, please try again later'
+            : 'Receipt service error, please try again'
+      if (import.meta.dev) {
+        const openrouterResponse = await response.json()
+        console.error(
+          'openrouter non-ok',
+          JSON.stringify(openrouterResponse, null, 2)
+        )
+      }
+      throw createError({
+        statusCode: 502,
+        statusMessage: 'Bad Gateway',
+        message
+      })
+    }
+
     const completion = await response.json()
-    console.log('completion response', JSON.stringify(completion, null, 2))
-    const receipt = JSON.parse(completion.choices[0].message.content) as Receipt
+    if (import.meta.dev) {
+      console.log('completion response', JSON.stringify(completion, null, 2))
+    }
+
+    let receipt
+    try {
+      receipt = parseReceiptResponse(completion)
+    } catch (parseErr) {
+      if (import.meta.dev) console.error('receipt parse failed', parseErr)
+      throw createError({
+        statusCode: 422,
+        statusMessage: 'Unprocessable Entity',
+        message: "Couldn't read this receipt — try a clearer photo"
+      })
+    }
 
     return {
       message: 'OK',
@@ -179,8 +205,8 @@ export default defineEventHandler(async (event) => {
       }
     }
   } catch (error) {
-    console.error('error POST /api/parse', error)
-    // handle error
+    // re-throw already-mapped HTTP errors (e.g. 400/413/422/502) without
+    // logging — these are expected outcomes, not server faults
     if (error instanceof H3Error) {
       throw createError({
         statusCode: error.statusCode,
@@ -189,6 +215,7 @@ export default defineEventHandler(async (event) => {
       })
     }
 
+    console.error('error POST /api/parse', error)
     throw createError({
       statusCode: 500,
       statusMessage: 'Internal Server Error',
