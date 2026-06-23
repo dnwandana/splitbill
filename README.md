@@ -63,9 +63,12 @@ UMAMI_WEBSITE_ID=your_umami_website_id_here
 
 | Variable             | Description                                                                        | Required |
 | -------------------- | ---------------------------------------------------------------------------------- | -------- |
-| `OPENROUTER_API_KEY` | API key from [OpenRouter](https://openrouter.ai/).                                 | Yes      |
-| `COMPLETION_MODEL`   | Vision model that supports structured output. Default: `qwen/qwen3-vl-8b-instruct` | Yes      |
-| `UMAMI_WEBSITE_ID`   | Website ID for Umami analytics (anonymous, cookie-free). Leave empty to disable.   | No       |
+| `OPENROUTER_API_KEY`  | API key from [OpenRouter](https://openrouter.ai/).                                          | Yes      |
+| `COMPLETION_MODEL`    | Vision model that supports structured output. Default: `qwen/qwen3-vl-8b-instruct`          | Yes      |
+| `UMAMI_WEBSITE_ID`    | Website ID for Umami analytics (anonymous, cookie-free). Leave empty to disable.            | No       |
+| `RATE_LIMIT_PER_MIN`  | Per-IP `/api/parse` requests allowed per minute. Default: `5`.                              | No       |
+| `RATE_LIMIT_PER_HOUR` | Per-IP `/api/parse` requests allowed per hour. Default: `20`.                               | No       |
+| `TRUST_PROXY`         | Set to `true` only behind a trusted reverse proxy so the limiter reads `X-Forwarded-For`. Unset for direct exposure — XFF is spoofable. (docker-compose sets this for you.) | No       |
 
 ### Run Development Server
 
@@ -177,6 +180,7 @@ SplitBill is designed with privacy as a core principle:
 - **No User Accounts** - No sign-up, login, or personal information required.
 - **No Tracking Cookies** - Umami analytics is completely cookie-free and anonymous.
 - **Receipt Images** - Images are sent to OpenRouter for parsing and not stored afterwards.
+- **Fonts** - Web fonts are loaded from Google Fonts and Fontshare (a third-party request on first paint). This is a deliberate tradeoff vs. the privacy-first positioning; self-hosting is tracked as a future improvement. The production build also fetches Google Fonts at build time (requires network during `nuxt build`).
 - **Open Source** - Full transparency into how the application works.
 
 ## Development
