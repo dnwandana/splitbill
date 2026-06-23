@@ -7,12 +7,28 @@ export default defineNuxtConfig({
   serverDir: 'src/server',
   modules: ['@nuxt/eslint', '@nuxt/ui'],
 
+  // node:test files import sibling modules with explicit .ts extensions
+  // (required by Node's native TS test runner); allow that under noEmit typecheck
+  typescript: {
+    tsConfig: {
+      compilerOptions: { allowImportingTsExtensions: true }
+    }
+  },
+  nitro: {
+    typescript: {
+      tsConfig: {
+        compilerOptions: { allowImportingTsExtensions: true }
+      }
+    }
+  },
+
   // nuxt ui
   css: ['~/assets/main.css'],
 
   // umami analytics + Google Fonts
   app: {
     head: {
+      htmlAttrs: { lang: 'en' },
       link: [
         { rel: 'preconnect', href: 'https://fonts.googleapis.com' },
         {
