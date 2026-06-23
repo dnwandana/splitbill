@@ -8,6 +8,7 @@ services:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY}
       - COMPLETION_MODEL=${COMPLETION_MODEL}
       - UMAMI_WEBSITE_ID=${UMAMI_WEBSITE_ID}
+      - TRUST_PROXY=true
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"]
